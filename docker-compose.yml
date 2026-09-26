@@ -1,0 +1,46 @@
+# Uso local.
+#   docker compose up --build                 -> modo demo (CSV sintético, sem GCP)
+#   docker compose --profile gcp up --build api-gcp   -> BigQuery + Vertex com suas credenciais ADC
+# Demo em http://localhost:8080/docs | GCP em http://localhost:8081/docs
+
+name: ita
+
+services:
+  api:
+    build: .
+    image: ita-backend
+    ports:
+      - "8080:8080"
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DATA_SOURCE: csv
+      CSV_PATH: data/extrato_amostra.csv
+      # /chat precisa do Gemini: defina GOOGLE_API_KEY no .env
+      # (com GOOGLE_GENAI_USE_VERTEXAI=FALSE) para usar o chat neste modo
+
+  api-gcp:
+    profiles: ["gcp"]
+    build: .
+    image: ita-backend
+    ports:
+      - "8081:8080"
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DATA_SOURCE: bigquery
+      GOOGLE_CLOUD_PROJECT: batalha-time-01-97zr
+      GOOGLE_CLOUD_LOCATION: us-central1
+      # Gemini via Vertex AI com o seu login (créditos do projeto), não pela chave do .env
+      GOOGLE_GENAI_USE_VERTEXAI: "TRUE"
+      GOOGLE_API_KEY: ""
+      GOOGLE_APPLICATION_CREDENTIALS: /home/app/.config/gcloud/application_default_credentials.json
+    volumes:
+      # Credenciais de `gcloud auth application-default login`.
+      # Windows: %APPDATA%\gcloud | Linux/macOS: defina GCLOUD_CONFIG_DIR=~/.config/gcloud
+      - type: bind
+        source: ${GCLOUD_CONFIG_DIR:-${APPDATA}/gcloud}
+        target: /home/app/.config/gcloud
+        read_only: true

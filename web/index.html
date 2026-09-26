@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ITA no IA.I — Protótipo navegável</title>
+<style>
+:root{--orange:#ff6200;--navy:#061b67;--bg:#f3f4f6;--ink:#222;--muted:#666;--line:#e5e5e5;--soft:#fff5ed;--red:#b42318;--green:#16794c}
+*{box-sizing:border-box}body{margin:0;background:#e9edf1;font-family:Arial,Helvetica,sans-serif;color:var(--ink)}button,input,select{font:inherit}
+.wrap{max-width:1180px;margin:auto;padding:22px;display:grid;grid-template-columns:430px 1fr;gap:28px;align-items:start}
+.phone{width:420px;height:820px;background:white;border:8px solid #20242a;border-radius:38px;overflow:hidden;position:relative;box-shadow:0 18px 50px #0002}.status{height:32px;background:var(--orange);color:#fff;padding:8px 16px;display:flex;justify-content:space-between;font-weight:bold;font-size:12px}.screen{height:772px;overflow:auto;background:var(--bg)}.hidden{display:none!important}
+.orangeHead{height:108px;background:var(--orange);color:#fff;padding:20px 18px;display:flex;align-items:center;justify-content:space-between}.circle{width:42px;height:42px;border-radius:50%;background:#f7f2e8;color:#333;display:grid;place-items:center}.level{background:#ff7b28;border-radius:20px;padding:9px 12px;font-weight:bold}.icons{font-size:25px;letter-spacing:10px}
+.home{padding:28px 20px 90px}.home h3{margin:5px 0 22px}.shortcuts{display:flex;gap:18px;overflow:hidden;margin-bottom:26px}.shortcut{text-align:center;width:86px;flex:none;color:#4c4c4c}.sq{height:82px;border-radius:20px;background:#fff;display:grid;place-items:center;font-size:25px;margin-bottom:9px}.card{background:#fff;border-radius:20px;padding:22px;margin:14px 0;border:1px solid #eee}.balance{font-size:24px;margin:12px 0}.aiFloat{position:absolute;right:24px;bottom:82px;width:58px;height:58px;border:2px solid var(--orange);background:#fff;border-radius:19px;display:grid;place-items:center;color:var(--orange);font-size:24px;cursor:pointer;box-shadow:0 8px 22px #0002}.bottom{position:absolute;bottom:0;left:0;right:0;height:72px;background:#fff;border-top:1px solid #ddd;display:flex;justify-content:space-around;align-items:center;font-size:12px}.bottom b{color:var(--navy)}
+.chatHead{background:var(--orange);color:#fff;padding:17px;display:flex;gap:11px;align-items:center}.back{font-size:26px;cursor:pointer}.avatar{width:42px;height:42px;border-radius:14px;background:var(--navy);color:#fff;display:grid;place-items:center;font-weight:900}.chat{height:650px;padding:16px;overflow:auto;background:#f6f6f6}.bubble{max-width:88%;padding:12px 14px;border-radius:16px;margin:9px 0;line-height:1.42;font-size:14px}.bot{background:#fff;border:1px solid #e4e4e4}.me{margin-left:auto;background:#e7edff}.ita{border-left:4px solid var(--orange)}.chips{display:grid;gap:8px;margin:10px 0}.chip{border:1px solid #ddd;background:#fff;border-radius:13px;padding:12px;text-align:left;cursor:pointer}.chip:hover{border-color:var(--orange)}.chip b{display:block;margin-bottom:3px}.primary{background:var(--orange);color:#fff;border-color:var(--orange)}.composer{position:absolute;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #ddd;padding:10px;display:flex;gap:8px}.composer input{flex:1;border:1px solid #d4d4d4;border-radius:22px;padding:11px}.composer button{border:0;width:42px;border-radius:50%;background:var(--orange);color:#fff;cursor:pointer}.analysis{background:#fff;border:1px solid #ddd;border-radius:15px;padding:14px;margin:10px 0}.risk{background:#fff0ed;border-color:#ffd0c8}.ok{background:#effaf4;border-color:#bfe6d0}.big{font-size:25px;font-weight:800;color:var(--red)}.good{font-size:23px;font-weight:bold;color:var(--navy)}
+.opt{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-top:1px solid #eee;font-size:13px}.opt:first-of-type{border-top:0}.opt small{color:var(--muted)}.rec{color:var(--green);font-weight:bold}.typing{color:var(--muted);font-style:italic}.legend{font-size:11px;color:var(--muted);display:flex;gap:12px;margin-top:4px}.legend i{display:inline-block;width:10px;height:3px;vertical-align:middle;margin-right:4px}
+.panel h1{color:var(--navy);margin:0 0 8px}.panel p{color:var(--muted);line-height:1.55}.box{background:#fff;border:1px solid #ddd;border-radius:18px;padding:19px;margin-top:14px}.steps{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.step{background:#eee;color:#555;padding:8px 10px;border-radius:9px;font-size:12px}.step.on{background:var(--orange);color:#fff}.reset{border:1px solid var(--navy);color:var(--navy);background:#fff;padding:10px 13px;border-radius:10px;margin-top:14px;cursor:pointer}
+.box select{width:100%;padding:10px;border:1px solid #ccc;border-radius:10px;margin-top:10px;background:#fff}.meta{font-size:12px;color:var(--muted);margin-top:8px}#log{font-family:Consolas,monospace;font-size:12px;background:#0f172a;color:#cbd5e1;border-radius:10px;padding:10px;margin-top:10px;max-height:260px;overflow:auto;white-space:pre-wrap}#log .ag{color:#fdba74}#log .err{color:#fca5a5}
+@media(max-width:900px){.wrap{grid-template-columns:1fr}.phone{width:100%;max-width:420px;margin:auto}}
+</style></head><body>
+<div class="wrap">
+<div class="phone"><div class="status"><span>14:36</span><span>▮▮ 4G&nbsp; 66%</span></div>
+<div id="home" class="screen">
+ <div class="orangeHead"><div style="display:flex;align-items:center;gap:10px"><div class="circle" id="iniciais">··</div><div class="level">⑤ Nível 5</div></div><div class="icons">⌕ ● □</div></div>
+ <div class="home"><h3>Meu Itaú</h3><div class="shortcuts">
+  <div class="shortcut"><div class="sq">◇</div>Pix e<br>transferir</div><div class="shortcut"><div class="sq">|||</div>Pagar</div><div class="shortcut"><div class="sq">▣</div>Cartão<br>virtual</div><div class="shortcut"><div class="sq">▤</div>Cofrinhos</div>
+ </div>
+ <div class="card"><b>▣ &nbsp; Conta corrente</b><div style="margin-top:28px">Saldo</div><div class="balance" id="saldoHome">••••</div><hr style="border:0;border-top:1px solid #ddd"><div style="margin-top:18px">Renda média mensal &nbsp; <b id="rendaHome">••••</b></div></div>
+ <div class="card"><b>💳 &nbsp; Parcelamentos</b><p>Parcelas em aberto por mês</p><b id="parcHome">••••</b><p id="parcFim" style="color:#666"></p></div>
+ </div>
+ <button class="aiFloat" onclick="openIA()">✦</button>
+ <div class="bottom"><b>⌂<br>Início</b><span>☷<br>Extrato</span><span>⇄<br>Pagamentos</span><span>▦<br>Pra você</span><span>▦<br>Menu</span></div>
+</div>
+
+<div id="iai" class="screen hidden">
+ <div class="chatHead"><span class="back" onclick="goHome()">‹</span><div class="avatar">IA</div><div><b>IA.I</b><div style="font-size:11px">assistente Itaú</div></div></div>
+ <div id="chat" class="chat"></div>
+ <div class="composer"><input id="input" placeholder="Pergunte ao IA.I" onkeydown="if(event.key==='Enter')send()"><button onclick="send()">➜</button></div>
+</div>
+</div>
+
+<aside class="panel"><h1>IA.I → ITA</h1><p>O IA.I funciona como porta de entrada e chama o agente especializado ITA. Os números vêm do motor de cálculo da API (dados do extrato); o texto livre vai para o time de agentes.</p>
+<div class="box"><b>Cliente da demo</b><select id="cliente" onchange="trocarCliente(this.value)"><option>carregando…</option></select><div class="meta" id="meta"></div></div>
+<div class="box"><b>Jornada da demo</b><div class="steps"><span id="s1" class="step on">1. App Itaú</span><span id="s2" class="step">2. IA.I</span><span id="s3" class="step">3. Consulta ITA</span><span id="s4" class="step">4. Capacidades</span><span id="s5" class="step">5. Cenário</span><span id="s6" class="step">6. Simulação</span></div><button class="reset" onclick="location.reload()">↺ Reiniciar</button></div>
+<div class="box"><b>Por dentro</b><p style="margin:6px 0 0;font-size:13px">Cada chamada à API e cada passo dos agentes: de onde vem cada número.</p><div id="log">aguardando…</div></div>
+</aside></div>
+<script>
+const API = location.protocol.startsWith('http') ? '' : 'http://localhost:8080';
+let uid = null, sessionId = null, ultimo = null, modo = 'chat';
+const CHAT_INICIAL = `<div class="bubble bot">Oi! Como posso ajudar você hoje?</div>
+<div class="bubble bot">Além das consultas do dia a dia, posso chamar agentes especializados quando você precisar de uma análise mais completa.</div>
+<div class="analysis"><b>Quer entender melhor suas decisões financeiras?</b><p style="font-size:13px;color:#666">Posso consultar o <b>ITA, seu agente financeiro</b>, para analisar seu momento, antecipar situações e simular decisões.</p><button class="chip primary" onclick="callITA()">Consultar o ITA →</button></div>`;
+
+// ---------- utilidades ----------
+const brl = v => Number(v || 0).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+const dm = iso => iso ? iso.slice(8, 10) + '/' + iso.slice(5, 7) : '—';
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
+function lerValor(s) {
+  let t = String(s).replace(/[^\d,.]/g, '');
+  if (t.includes(',')) t = t.replace(/\./g, '').replace(',', '.');
+  else if (/^\d{1,3}(\.\d{3})+$/.test(t)) t = t.replace(/\./g, '');
+  const v = parseFloat(t);
+  return isFinite(v) && v > 0 ? v : null;
+}
+function log(html) {
+  const el = document.getElementById('log');
+  if (el.textContent === 'aguardando…') el.innerHTML = '';
+  el.insertAdjacentHTML('beforeend', html + '\n');
+  el.scrollTop = el.scrollHeight;
+}
+async function api(path, opts) {
+  const t0 = performance.now(), metodo = opts?.method || 'GET';
+  try {
+    const r = await fetch(API + path, opts);
+    const j = await r.json().catch(() => ({}));
+    log(`${metodo} ${esc(path)} → ${r.status} (${Math.round(performance.now() - t0)} ms)`);
+    if (!r.ok) throw new Error(j.detail || 'HTTP ' + r.status);
+    return j;
+  } catch (e) {
+    log(`<span class="err">${metodo} ${esc(path)} ✗ ${esc(e.message)}</span>`);
+    throw e;
+  }
+}
+function steps(n) { for (let i = 1; i <= 6; i++) document.getElementById('s' + i).classList.toggle('on', i <= n) }
+function add(html, me = false, extra = '') { const c = document.getElementById('chat'), d = document.createElement('div'); d.className = 'bubble ' + (me ? 'me' : 'bot') + ' ' + extra; d.innerHTML = html; c.appendChild(d); c.scrollTop = c.scrollHeight; return d }
+function block(html) { const c = document.getElementById('chat'), d = document.createElement('div'); d.innerHTML = html; c.appendChild(d); c.scrollTop = c.scrollHeight; return d }
+function pensando() { return add('ITA está analisando…', false, 'ita typing') }
+function falha(el, e) { el.classList.remove('typing'); el.innerHTML = 'Não consegui calcular agora (' + esc(e.message) + '). Confira se a API está rodando.' }
+
+// gráfico de saldo (várias séries) em SVG
+function grafico(series) {
+  const W = 340, H = 96, P = 4, todos = series.flatMap(s => s.dados.map(p => p.saldo)).concat([0]);
+  const min = Math.min(...todos), max = Math.max(...todos), n = Math.max(...series.map(s => s.dados.length));
+  const x = i => P + i * (W - 2 * P) / Math.max(n - 1, 1), y = v => H - P - (v - min) * (H - 2 * P) / ((max - min) || 1);
+  const linhas = series.map(s => `<polyline fill="none" stroke="${s.cor}" stroke-width="2" points="${s.dados.map((p, i) => x(i).toFixed(1) + ',' + y(p.saldo).toFixed(1)).join(' ')}"/>`).join('');
+  const zero = min < 0 ? `<line x1="${P}" x2="${W - P}" y1="${y(0)}" y2="${y(0)}" stroke="#b42318" stroke-dasharray="4 3" stroke-width="1"/>` : '';
+  const d0 = series[0].dados[0]?.data, d1 = series[0].dados.at(-1)?.data;
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Projeção do saldo">${zero}${linhas}</svg>
+    <div class="legend">${series.map(s => `<span><i style="background:${s.cor}"></i>${esc(s.nome)}</span>`).join('')}<span style="margin-left:auto">${dm(d0)} → ${dm(d1)}</span></div>`;
+}
+
+// ---------- cliente ----------
+async function carregarClientes() {
+  const sel = document.getElementById('cliente');
+  try {
+    const {clientes} = await api('/clientes?limite=50');
+    sel.innerHTML = clientes.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('');
+    const padrao = clientes.includes('camila-demo') ? 'camila-demo' : clientes[0];
+    sel.value = padrao;
+    await trocarCliente(padrao);
+  } catch (e) {
+    sel.innerHTML = '<option>API indisponível</option>';
+    document.getElementById('meta').textContent = 'Suba a API (docker compose up) e recarregue a página.';
+  }
+}
+async function trocarCliente(id) {
+  uid = id; sessionId = null; ultimo = null; modo = 'chat';
+  document.getElementById('chat').innerHTML = CHAT_INICIAL;
+  document.getElementById('iniciais').textContent = id.slice(0, 2).toUpperCase();
+  try {
+    const p = await api(`/clientes/${encodeURIComponent(id)}/perfil`);
+    document.getElementById('saldoHome').textContent = brl(p.saldo_atual);
+    document.getElementById('rendaHome').textContent = brl(p.renda_mensal_media);
+    document.getElementById('parcHome').textContent = brl(p.parcelas_mensais_total);
+    const fim = p.parcelas_abertas.map(x => x.termina_em).sort().at(-1);
+    document.getElementById('parcFim').textContent = fim ? `${p.parcelas_abertas.length} parcelamento(s), o último termina em ${dm(fim)}` : 'Nenhum parcelamento em aberto';
+    document.getElementById('meta').textContent = `Extrato até ${dm(p.data_referencia)}/${p.data_referencia.slice(0, 4)} · comprometimento da renda ${p.comprometimento_renda_pct}%`;
+  } catch (e) { document.getElementById('meta').textContent = 'Erro ao carregar o perfil: ' + e.message }
+}
+
+// ---------- jornada ----------
+function openIA() { document.getElementById('home').classList.add('hidden'); document.getElementById('iai').classList.remove('hidden'); steps(2) }
+function goHome() { document.getElementById('home').classList.remove('hidden'); document.getElementById('iai').classList.add('hidden'); steps(1) }
+function callITA() {
+  add('<b>ITA conectado.</b> Vou passar a conversa para o agente financeiro especializado.');
+  setTimeout(() => { add('<b>Oi, eu sou o ITA.</b> 👋<br>Eu uso seu contexto financeiro para ajudar você a entender o que está acontecendo com seu dinheiro, antecipar situações e simular decisões antes que elas aconteçam.', false, 'ita'); showCapabilities(); steps(3) }, 350);
+}
+function showCapabilities() {
+  setTimeout(() => { block(`<div class="chips">
+<button class="chip" onclick="salary()"><b>💰 Até o próximo salário dá?</b>Veja quanto está realmente disponível considerando o que ainda vem pela frente.</button>
+<button class="chip" onclick="gastos()"><b>📉 Entender meus gastos</b>Descubra o que mudou e o que está pressionando seu orçamento.</button>
+<button class="chip" onclick="decisao()"><b>🔮 Simular uma decisão</b>Veja como uma compra ou gasto pode afetar os próximos meses.</button>
+<button class="chip" onclick="oportunidades()"><b>✨ Identificar oportunidades</b>Perceba novas folgas, fim de parcelas ou mudanças positivas no cenário.</button>
+</div>`); steps(4) }, 450);
+}
+
+function salary() {
+  add('Até o próximo salário dá?', true);
+  add('Claro. Quanto você está pensando em gastar? Escolha abaixo ou digite o valor.', false, 'ita');
+  block(`<div class="chips"><button class="chip primary" onclick="purchase(800)">Quero gastar R$ 800</button><button class="chip" onclick="purchase(300)">Quero gastar R$ 300</button></div>`);
+  modo = 'valor'; steps(5);
+}
+async function purchase(v) {
+  modo = 'chat';
+  add(`Quero gastar ${brl(v)}. Dá até o próximo salário?`, true);
+  add('Vou considerar não só seu saldo de hoje, mas também o que está previsto até sua próxima renda.', false, 'ita');
+  const el = pensando();
+  try {
+    const r = ultimo = await api(`/clientes/${encodeURIComponent(uid)}/ate-salario?gasto=${v}`);
+    el.classList.remove('typing');
+    el.innerHTML = r.proxima_renda
+      ? `Sua próxima renda (<b>${esc(r.proxima_renda.descricao)}</b>, ${brl(r.proxima_renda.valor)}) está prevista para <b>${dm(r.proxima_renda.data)}</b>, daqui a <b>${r.dias_ate_renda} dias</b>. Até lá, identifiquei aproximadamente <b>${brl(r.compromissos.total_saidas)}</b> entre compromissos e gastos esperados.`
+      : `Não encontrei uma renda recorrente no seu extrato, então considerei os próximos <b>${r.dias_ate_renda} dias</b>. Nesse período, identifiquei aproximadamente <b>${brl(r.compromissos.total_saidas)}</b> entre compromissos e gastos esperados.`;
+    resultado(r);
+    const seguro = r.gasto_maximo_seguro;
+    add(r.cabe
+      ? `Esse gasto cabe: você preserva a margem de segurança de ${brl(r.margem_seguranca)} até a próxima renda. A decisão continua sendo sua. Quer testar outro valor?`
+      : seguro > 0
+        ? `Para preservar uma margem de ${brl(r.margem_seguranca)}, um gasto de até <b>${brl(seguro)}</b> seria mais compatível com esse cenário. A decisão continua sendo sua. Quer testar outro valor?`
+        : `Mesmo sem esse gasto, seu saldo já fica perto do limite até a próxima renda. Se der, o ideal é esperar o salário cair. A decisão continua sendo sua.`, false, 'ita');
+    const opcoes = [...new Set([seguro > 0 && seguro !== v ? seguro : null, Math.round(v / 2 / 10) * 10].filter(x => x && x !== v))];
+    block(`<div class="chips">${opcoes.map((x, i) => `<button class="chip ${i ? '' : 'primary'}" onclick="simulate(${x})">Simular ${brl(x)}</button>`).join('')}<button class="chip" onclick="details()">Como você calculou?</button></div>`);
+    modo = 'valor'; steps(6);
+  } catch (e) { falha(el, e) }
+}
+function resultado(r) {
+  const com = r.com_gasto, sem = r.sem_gasto, risco = !r.cabe;
+  block(`<div class="analysis"><b>Sem o novo gasto</b><br><span class="good">${brl(sem.saldo_final)}</span><br><small>saldo projetado até a próxima renda · menor saldo ${brl(sem.menor_saldo)} em ${dm(sem.data_menor_saldo)}</small></div>
+<div class="analysis ${risco ? 'risk' : 'ok'}"><b>Com o gasto de ${brl(r.gasto)}</b><br><span class="${com.saldo_final < 0 ? 'big' : 'good'}">${brl(com.saldo_final)}</span><br><small>${com.dias_no_negativo ? `há risco de saldo negativo: ${com.dias_no_negativo} dia(s), o pior em ${dm(com.data_menor_saldo)} (${brl(com.menor_saldo)})` : risco ? `o saldo fica abaixo da margem de ${brl(r.margem_seguranca)} em ${dm(com.data_menor_saldo)}` : 'o saldo não fica negativo em nenhum dia'}</small>
+${grafico([{nome: 'sem o gasto', cor: '#061b67', dados: sem.serie}, {nome: 'com o gasto', cor: '#ff6200', dados: com.serie}])}</div>`);
+}
+async function simulate(v) {
+  add(`E se eu gastar ${brl(v)}?`, true);
+  const el = pensando();
+  try {
+    const r = ultimo = await api(`/clientes/${encodeURIComponent(uid)}/ate-salario?gasto=${v}`);
+    el.classList.remove('typing');
+    el.innerHTML = `Com ${brl(v)}, sua projeção é chegar à próxima renda com aproximadamente <b>${brl(r.com_gasto.saldo_final)}</b>. ` +
+      (r.cabe ? `Você preserva a margem de ${brl(r.margem_seguranca)}.` : r.com_gasto.dias_no_negativo ? `Mas o saldo fica negativo em ${r.com_gasto.dias_no_negativo} dia(s).` : `O valor cabe, mas deixa uma margem menor que ${brl(r.margem_seguranca)}.`);
+    resultado(r);
+    steps(6);
+  } catch (e) { falha(el, e) }
+}
+function details() {
+  if (!ultimo) return;
+  const c = ultimo.compromissos;
+  add('Como você calculou?', true);
+  add(`Partindo do seu saldo de <b>${brl(ultimo.saldo_atual)}</b>, considerei <b>${brl(c.contas_fixas)}</b> em contas recorrentes, <b>${brl(c.parcelas)}</b> em parcelas e cerca de <b>${brl(c.gasto_variavel_estimado)}</b> em gastos variáveis estimados${c.outras_entradas ? `, além de ${brl(c.outras_entradas)} em outras entradas previstas` : ''}. Os gastos variáveis são uma previsão pela média dos últimos 90 dias, não um compromisso certo.<br><small style="color:#666">Números calculados pelo motor a partir do seu extrato, não pela IA.</small>`, false, 'ita');
+}
+
+async function gastos() {
+  add('Quero entender meus gastos.', true);
+  const el = pensando();
+  try {
+    const p = await api(`/clientes/${encodeURIComponent(uid)}/perfil`);
+    el.classList.remove('typing');
+    el.innerHTML = `Nos últimos 3 meses você recebeu em média <b>${brl(p.renda_mensal_media)}</b> e gastou <b>${brl(p.gastos_mensais_medios)}</b> por mês. Contas fixas e parcelas comprometem <b>${p.comprometimento_renda_pct}%</b> da sua renda.`;
+    block(`<div class="analysis"><b>Onde vai o seu dinheiro (média por mês)</b>${p.top_categorias_mes.map(t => `<div class="opt"><span>${esc(t.categoria)}</span><b>${brl(t.valor_mensal)}</b></div>`).join('')}</div>
+<div class="analysis"><b>Compromissos que se repetem</b>${p.contas_fixas.map(f => `<div class="opt"><span>${esc(f.descricao)} <small>dia ${f.dia}</small></span><b>${brl(f.valor)}</b></div>`).join('') || '<p><small>Nenhuma conta fixa detectada.</small></p>'}
+${p.parcelas_abertas.map(x => `<div class="opt"><span>${esc(x.descricao)} <small>${x.restantes} restante(s), até ${dm(x.termina_em)}</small></span><b>${brl(x.valor_parcela)}</b></div>`).join('')}</div>`);
+    if (p.dias_no_negativo_90d) add(`Nos últimos 90 dias sua conta ficou <b>${p.dias_no_negativo_90d} dia(s) no negativo</b>. O cheque especial tem um dos juros mais altos do mercado, então vale evitar até alguns dias por mês.`, false, 'ita');
+  } catch (e) { falha(el, e) }
+}
+
+function decisao() {
+  add('Quero simular uma decisão.', true);
+  add('Que compra você está pensando em fazer? Escolha um exemplo ou escreva com suas palavras no campo abaixo (aí eu chamo o time de agentes).', false, 'ita');
+  block(`<div class="chips"><button class="chip primary" onclick="comparar(3000,12)"><b>Celular de R$ 3.000 em 12x</b>Comparo parcelar agora, dar entrada, esperar e um modelo mais barato.</button><button class="chip" onclick="comparar(1500,6)"><b>Geladeira de R$ 1.500 em 6x</b></button></div>`);
+  modo = 'chat'; steps(5);
+}
+async function comparar(valor, parcelas) {
+  add(`Posso comprar algo de ${brl(valor)} em ${parcelas}x?`, true);
+  const el = pensando();
+  try {
+    const r = await api(`/clientes/${encodeURIComponent(uid)}/comparar`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({valor, parcelas})});
+    const rec = r.opcoes.find(o => o.chave === r.recomendada), agora = r.opcoes.find(o => o.chave === 'agora');
+    el.classList.remove('typing');
+    el.innerHTML = agora.dias_no_negativo
+      ? `Pode, mas parcelando agora seu saldo fica <b>${agora.dias_no_negativo} dia(s) no negativo</b> nos próximos ${r.horizonte_dias} dias${agora.evento_gatilho ? `, logo depois de <b>${esc(agora.evento_gatilho.descricao)}</b>` : ''}. Comparei os caminhos:`
+      : `Comparei os caminhos possíveis nos próximos ${r.horizonte_dias} dias:`;
+    block(`<div class="analysis">${r.opcoes.map(o => `<div class="opt"><span>${o.chave === r.recomendada ? '<span class="rec">★ </span>' : ''}${esc(o.opcao)}<br><small>${o.dias_no_negativo ? o.dias_no_negativo + ' dia(s) no negativo' : 'nunca negativo'} · ${o.comprometimento_renda_pct}% da renda</small></span><b>${brl(o.menor_saldo)}<br><small>menor saldo</small></b></div>`).join('')}
+${grafico([{nome: 'sem a compra', cor: '#9ca3af', dados: r.sem_compra.serie}, {nome: agora.opcao, cor: '#b42318', dados: agora.serie}].concat(rec.chave === 'agora' ? [] : [{nome: '★ ' + rec.opcao, cor: '#16794c', dados: rec.serie}]))}</div>`);
+    add(`Minha sugestão: <b>${esc(rec.opcao)}</b>, porque ${esc(r.motivo)}. A decisão é sua.<br><small style="color:#666">Micro-lição: mais importante que a parcela caber é olhar quanto da renda fica comprometida. Acima de 30% o orçamento fica sem folga para imprevistos.</small>`, false, 'ita');
+    steps(6);
+  } catch (e) { falha(el, e) }
+}
+
+async function oportunidades() {
+  add('Quero identificar oportunidades.', true);
+  const el = pensando();
+  try {
+    const {alertas} = await api(`/clientes/${encodeURIComponent(uid)}/alertas`);
+    el.classList.remove('typing');
+    if (!alertas.length) { el.innerHTML = 'Olhei os próximos meses e não encontrei nada fora do normal. Seu fluxo parece estável.'; return }
+    el.innerHTML = `Olhei os próximos meses e encontrei <b>${alertas.length}</b> ponto(s) de atenção:`;
+    block(alertas.map(a => `<div class="analysis ${a.tipo === 'aperto' ? 'risk' : a.tipo.startsWith('oportunidade') ? 'ok' : ''}"><b>${esc(a.titulo)}</b><p style="font-size:13px;margin:6px 0">${esc(a.mensagem)}</p>${a.educativo ? `<small style="color:#666">${esc(a.educativo)}</small>` : ''}</div>`).join(''));
+    steps(6);
+  } catch (e) { falha(el, e) }
+}
+
+// ---------- texto livre ----------
+async function send() {
+  const i = document.getElementById('input'), txt = i.value.trim();
+  if (!txt || !uid) return;
+  i.value = '';
+  // no modo "valor", só um número puro ("800", "R$ 1.200,50") vira simulação; frase vai para os agentes
+  const v = modo === 'valor' && /^\s*(r\$)?\s*[\d.,]+\s*$/i.test(txt) ? lerValor(txt) : null;
+  if (v) { steps(6); return ultimo ? simulate(v) : purchase(v) }
+  add(esc(txt), true);
+  const el = pensando();
+  el.textContent = 'ITA está consultando o time de agentes…';
+  try {
+    const r = await api('/chat', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({id_usuario: uid, mensagem: txt, session_id: sessionId})});
+    sessionId = r.session_id || sessionId;
+    el.classList.remove('typing');
+    el.innerHTML = esc(r.resposta || '(sem resposta)').replace(/\n/g, '<br>');
+    for (const t of r.trilha || []) log(`<span class="ag">  ↳ ${esc(t.agente)}</span> ${esc(t.acao)}${t.ferramenta ? ' ' + esc(t.ferramenta) : ''}${t.motivo ? ' (' + esc(t.motivo) + ')' : ''}`);
+  } catch (e) {
+    el.classList.remove('typing');
+    el.innerHTML = `Não consegui falar com os agentes agora (${esc(e.message)}). As simulações pelos botões funcionam sem a IA.`;
+  }
+}
+
+document.getElementById('chat').innerHTML = CHAT_INICIAL;
+carregarClientes();
+</script></body></html>

@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ITA no IA.I — Protótipo navegável</title>
+<style>
+:root{--orange:#ff6200;--navy:#061b67;--bg:#f3f4f6;--ink:#222;--muted:#666;--line:#e5e5e5;--soft:#fff5ed;--red:#b42318;--green:#16794c}
+*{box-sizing:border-box}body{margin:0;background:#e9edf1;font-family:Arial,Helvetica,sans-serif;color:var(--ink)}button,input{font:inherit}
+.wrap{max-width:1180px;margin:auto;padding:22px;display:grid;grid-template-columns:430px 1fr;gap:28px;align-items:start}
+.phone{width:420px;height:820px;background:white;border:8px solid #20242a;border-radius:38px;overflow:hidden;position:relative;box-shadow:0 18px 50px #0002}.status{height:32px;background:var(--orange);color:#fff;padding:8px 16px;display:flex;justify-content:space-between;font-weight:bold;font-size:12px}.screen{height:772px;overflow:auto;background:var(--bg)}.hidden{display:none!important}
+.orangeHead{height:108px;background:var(--orange);color:#fff;padding:20px 18px;display:flex;align-items:center;justify-content:space-between}.circle{width:42px;height:42px;border-radius:50%;background:#f7f2e8;color:#333;display:grid;place-items:center}.level{background:#ff7b28;border-radius:20px;padding:9px 12px;font-weight:bold}.icons{font-size:25px;letter-spacing:10px}
+.home{padding:28px 20px 90px}.home h3{margin:5px 0 22px}.shortcuts{display:flex;gap:18px;overflow:hidden;margin-bottom:26px}.shortcut{text-align:center;width:86px;flex:none;color:#4c4c4c}.sq{height:82px;border-radius:20px;background:#fff;display:grid;place-items:center;font-size:25px;margin-bottom:9px}.card{background:#fff;border-radius:20px;padding:22px;margin:14px 0;border:1px solid #eee}.balance{font-size:24px;margin:12px 0}.aiFloat{position:absolute;right:24px;bottom:82px;width:58px;height:58px;border:2px solid var(--orange);background:#fff;border-radius:19px;display:grid;place-items:center;color:var(--orange);font-size:24px;cursor:pointer;box-shadow:0 8px 22px #0002}.bottom{position:absolute;bottom:0;left:0;right:0;height:72px;background:#fff;border-top:1px solid #ddd;display:flex;justify-content:space-around;align-items:center;font-size:12px}.bottom b{color:var(--navy)}
+.chatHead{background:var(--orange);color:#fff;padding:17px;display:flex;gap:11px;align-items:center}.back{font-size:26px;cursor:pointer}.avatar{width:42px;height:42px;border-radius:14px;background:var(--navy);color:#fff;display:grid;place-items:center;font-weight:900}.chat{height:650px;padding:16px;overflow:auto;background:#f6f6f6}.bubble{max-width:88%;padding:12px 14px;border-radius:16px;margin:9px 0;line-height:1.42;font-size:14px}.bot{background:#fff;border:1px solid #e4e4e4}.me{margin-left:auto;background:#e7edff}.ita{border-left:4px solid var(--orange)}.chips{display:grid;gap:8px;margin:10px 0}.chip{border:1px solid #ddd;background:#fff;border-radius:13px;padding:12px;text-align:left;cursor:pointer}.chip:hover{border-color:var(--orange)}.chip b{display:block;margin-bottom:3px}.primary{background:var(--orange);color:#fff;border-color:var(--orange)}.composer{position:absolute;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #ddd;padding:10px;display:flex;gap:8px}.composer input{flex:1;border:1px solid #d4d4d4;border-radius:22px;padding:11px}.composer button{border:0;width:42px;border-radius:50%;background:var(--orange);color:#fff;cursor:pointer}.analysis{background:#fff;border:1px solid #ddd;border-radius:15px;padding:14px;margin:10px 0}.risk{background:#fff0ed;border-color:#ffd0c8}.big{font-size:25px;font-weight:800;color:var(--red)}
+.panel h1{color:var(--navy);margin:0 0 8px}.panel p{color:var(--muted);line-height:1.55}.box{background:#fff;border:1px solid #ddd;border-radius:18px;padding:19px;margin-top:14px}.steps{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.step{background:#eee;color:#555;padding:8px 10px;border-radius:9px;font-size:12px}.step.on{background:var(--orange);color:#fff}.reset{border:1px solid var(--navy);color:var(--navy);background:#fff;padding:10px 13px;border-radius:10px;margin-top:14px;cursor:pointer}
+@media(max-width:900px){.wrap{grid-template-columns:1fr}.phone{width:100%;max-width:420px;margin:auto}}
+</style></head><body>
+<div class="wrap">
+<div class="phone"><div class="status"><span>14:36</span><span>▮▮ 4G&nbsp; 66%</span></div>
+<!-- HOME inspired by supplied screenshot -->
+<div id="home" class="screen">
+ <div class="orangeHead"><div style="display:flex;align-items:center;gap:10px"><div class="circle">KK</div><div class="level">⑤ Nível 5</div></div><div class="icons">⌕ ● □</div></div>
+ <div class="home"><h3>Meu Itaú</h3><div class="shortcuts">
+  <div class="shortcut"><div class="sq">◇</div>Pix e<br>transferir</div><div class="shortcut"><div class="sq">|||</div>Pagar</div><div class="shortcut"><div class="sq">▣</div>Cartão<br>virtual</div><div class="shortcut"><div class="sq">▤</div>Cofrinhos</div>
+ </div>
+ <div class="card"><b>▣ &nbsp; Conta corrente</b><div style="margin-top:28px">Saldo</div><div class="balance">••••</div><hr style="border:0;border-top:1px solid #ddd"><div style="margin-top:18px">Limite disponível &nbsp; ••••</div></div>
+ <div class="card"><b>💳 &nbsp; Cartão final 3177</b><p>Fatura aberta</p><b>••••</b><p>Melhor data de compras: 03 out</p></div>
+ </div>
+ <button class="aiFloat" onclick="openIA()">✦</button>
+ <div class="bottom"><b>⌂<br>Início</b><span>☷<br>Extrato</span><span>⇄<br>Pagamentos</span><span>▦<br>Pra você</span><span>▦<br>Menu</span></div>
+</div>
+
+<!-- IA.I -->
+<div id="iai" class="screen hidden">
+ <div class="chatHead"><span class="back" onclick="goHome()">‹</span><div class="avatar">IA</div><div><b>IA.I</b><div style="font-size:11px">assistente Itaú</div></div></div>
+ <div id="chat" class="chat">
+  <div class="bubble bot">Oi! Como posso ajudar você hoje?</div>
+  <div class="bubble bot">Além das consultas do dia a dia, posso chamar agentes especializados quando você precisar de uma análise mais completa.</div>
+  <div class="analysis"><b>Quer entender melhor suas decisões financeiras?</b><p style="font-size:13px;color:#666">Posso consultar o <b>ITA, seu agente financeiro</b>, para analisar seu momento, antecipar situações e simular decisões.</p><button class="chip primary" onclick="callITA()">Consultar o ITA →</button></div>
+ </div>
+ <div class="composer"><input id="input" placeholder="Pergunte ao IA.I"><button onclick="send()">➜</button></div>
+</div>
+</div>
+
+<aside class="panel"><h1>IA.I → ITA</h1><p>Protótipo baseado na tela do app que você enviou. O IA.I funciona como porta de entrada e recomenda o agente especializado ITA.</p>
+<div class="box"><b>Jornada da demo</b><div class="steps"><span id="s1" class="step on">1. App Itaú</span><span id="s2" class="step">2. IA.I</span><span id="s3" class="step">3. Consulta ITA</span><span id="s4" class="step">4. Capacidades</span><span id="s5" class="step">5. Cenário</span><span id="s6" class="step">6. Simulação</span></div><button class="reset" onclick="location.reload()">↺ Reiniciar</button></div>
+<div class="box"><b>Racional</b><p>O cliente não precisa conhecer previamente o agente. Ele entra no IA.I, recebe a sugestão contextual de consultar o ITA, conhece rapidamente o que o agente pode fazer e escolhe uma necessidade.</p></div>
+<div class="box"><b>Demo principal</b><p><b>“Até o próximo salário dá?”</b> é a única jornada implementada ponta a ponta. As demais capacidades ajudam a comunicar a visão do produto.</p></div>
+</aside></div>
+<script>
+let stage=1;
+function steps(n){stage=n;for(let i=1;i<=6;i++)document.getElementById('s'+i).classList.toggle('on',i<=n)}
+function openIA(){document.getElementById('home').classList.add('hidden');document.getElementById('iai').classList.remove('hidden');steps(2)}
+function goHome(){document.getElementById('home').classList.remove('hidden');document.getElementById('iai').classList.add('hidden');steps(1)}
+function add(html,me=false,extra=''){let c=document.getElementById('chat'),d=document.createElement('div');d.className='bubble '+(me?'me':'bot')+' '+extra;d.innerHTML=html;c.appendChild(d);c.scrollTop=c.scrollHeight}
+function block(html){let c=document.getElementById('chat'),d=document.createElement('div');d.innerHTML=html;c.appendChild(d);c.scrollTop=c.scrollHeight}
+function callITA(){add('<b>ITA conectado.</b> Vou passar a conversa para o agente financeiro especializado.');setTimeout(()=>{add('<b>Oi, eu sou o ITA.</b> 👋<br>Eu uso seu contexto financeiro para ajudar você a entender o que está acontecendo com seu dinheiro, antecipar situações e simular decisões antes que elas aconteçam.',false,'ita');showCapabilities();steps(3)},350)}
+function showCapabilities(){setTimeout(()=>{block(`<div class="chips">
+<button class="chip" onclick="salary()"><b>💰 Até o próximo salário dá?</b>Veja quanto está realmente disponível considerando o que ainda vem pela frente.</button>
+<button class="chip" onclick="comingSoon('gastos')"><b>📉 Entender meus gastos</b>Descubra o que mudou e o que está pressionando seu orçamento.</button>
+<button class="chip" onclick="comingSoon('decisão')"><b>🔮 Simular uma decisão</b>Veja como uma compra ou gasto pode afetar os próximos meses.</button>
+<button class="chip" onclick="comingSoon('oportunidades')"><b>✨ Identificar oportunidades</b>Perceba novas folgas, fim de parcelas ou mudanças positivas no cenário.</button>
+</div>`);steps(4)},450)}
+function comingSoon(x){add('Quero '+x+'.',true);add('Essa capacidade faz parte do ITA. Nesta demonstração, vamos seguir pela jornada <b>“Até o próximo salário dá?”</b>.');}
+function salary(){add('Até o próximo salário dá?',true);add('Claro. Me conta o que você está pensando em fazer.',false,'ita');block(`<div class="chips"><button class="chip primary" onclick="purchase()">Quero gastar R$ 800</button></div>`);steps(5)}
+function purchase(){add('Tenho R$ 2.000 na conta e quero gastar R$ 800. Dá até o próximo salário?',true);add('Vou considerar não só seu saldo de hoje, mas também o que está previsto até sua próxima renda.',false,'ita');setTimeout(analyse,350)}
+function analyse(){add('Sua próxima renda está prevista para daqui a <b>18 dias</b>. Até lá, identifiquei aproximadamente <b>R$ 1.450</b> entre compromissos e gastos esperados.',false,'ita');block(`<div class="analysis"><b>Sem o novo gasto</b><br><span style="font-size:23px;font-weight:bold;color:#061b67">R$ 550</span><br><small>saldo projetado até a próxima renda</small></div><div class="analysis risk"><b>Com o gasto de R$ 800</b><br><span class="big">– R$ 250</span><br><small>há risco de saldo negativo antes da próxima entrada</small></div>`);add('Para preservar uma margem de R$ 300, um gasto de até <b>R$ 250</b> seria mais compatível com esse cenário. A decisão continua sendo sua. Quer testar outro valor?',false,'ita');block(`<div class="chips"><button class="chip primary" onclick="simulate(500)">Simular R$ 500</button><button class="chip" onclick="simulate(250)">Simular R$ 250</button><button class="chip" onclick="details()">Como você calculou?</button></div>`)}
+function simulate(v){add('E se eu gastar R$ '+v+'?',true);let p=550-v;if(p<300)add('Com R$ '+v+', sua projeção é chegar ao próximo salário com aproximadamente <b>R$ '+p+'</b>. O valor cabe na projeção, mas deixa uma margem menor que R$ 300.',false,'ita');else add('Com R$ '+v+', você chegaria ao próximo salário com aproximadamente <b>R$ '+p+'</b>, preservando a margem de R$ 300.',false,'ita');steps(6)}
+function details(){add('Considerei <b>R$ 620</b> em contas recorrentes, <b>R$ 480</b> em parcelas, <b>R$ 120</b> em assinaturas e cerca de <b>R$ 230</b> em gastos variáveis estimados. Os gastos variáveis são uma previsão, não um compromisso certo.',false,'ita')}
+function send(){let i=document.getElementById('input');if(i.value.trim()){add(i.value,true);i.value='';add('Posso te ajudar por aqui ou consultar o ITA quando sua pergunta envolver análise e simulação financeira.');}}
+</script></body></html>

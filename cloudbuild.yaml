@@ -1,0 +1,53 @@
+# Pipeline de CI/CD: a cada push na main, o gatilho do Cloud Build roda
+# testes -> build da imagem -> push no Artifact Registry -> deploy no Cloud Run.
+# O deploy cria o serviço na primeira vez e aplica sempre a configuração completa
+# (variáveis, memória, acesso público), então não é preciso rodar o deploy.sh antes.
+#
+# Rodar manualmente: gcloud builds submit --config cloudbuild.yaml .
+
+steps:
+  - id: testes
+    name: python:3.12-slim
+    entrypoint: bash
+    args:
+      - -c
+      - pip install -q -r requirements-dev.txt && python -m pytest -q
+
+  - id: build
+    name: gcr.io/cloud-builders/docker
+    args: ["build", "-t", "${_IMAGE}:${BUILD_ID}", "-t", "${_IMAGE}:latest", "."]
+
+  - id: push
+    name: gcr.io/cloud-builders/docker
+    args: ["push", "--all-tags", "${_IMAGE}"]
+
+  - id: deploy
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - ${_SERVICE}
+      - --image=${_IMAGE}:${BUILD_ID}
+      - --region=${_REGION}
+      - --allow-unauthenticated
+      - --max-instances=5
+      - --session-affinity
+      - --memory=1Gi
+      - --cpu=1
+      - --timeout=300
+      - --set-env-vars=GOOGLE_CLOUD_PROJECT=${PROJECT_ID},GOOGLE_CLOUD_LOCATION=${_REGION},GOOGLE_GENAI_USE_VERTEXAI=TRUE,MODEL=${_MODEL},BQ_TABLE=${PROJECT_ID}.hackathon_dados.extrato_sintetico,TIPO_SAIDA=${_TIPO_SAIDA}
+      - --quiet
+
+substitutions:
+  _REGION: us-central1
+  _SERVICE: agente
+  _IMAGE: us-central1-docker.pkg.dev/${PROJECT_ID}/agentes/agente
+  _MODEL: gemini-3.8-flash
+  _TIPO_SAIDA: S
+
+options:
+  dynamicSubstitutions: true
+  logging: CLOUD_LOGGING_ONLY
+
+timeout: 1200s
