@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ITA · Telas do protótipo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap">
+<style>
+:root{
+  --bg:#F5F2EC; --surface:#FFFDF9; --sunk:#ECE7DE; --ink:#1C1B19; --ink2:#57534B; --muted:#8A847A; --line:#CFC6B8;
+  --ag:#C2410C; --ag-bg:#FCEADF; --ag-ink:#8A2E08;
+  --ga:#1A5FB4; --ga-bg:#E6EEF9;
+  --rule:#6B5B95; --rule-bg:#ECE8F4;
+  --ok:#1F7A4D; --ok-bg:#E3F2EA;
+  --display:"Sora",ui-sans-serif,system-ui,sans-serif; --body:"DM Sans",ui-sans-serif,system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root{
+  color-scheme:dark; --bg:#171613; --surface:#211F1B; --sunk:#2A2722; --ink:#EDE8DF; --ink2:#BDB6AA; --muted:#8E877C;
+  --line:#4A443B; --ag:#F08A4B; --ag-bg:#3A2519; --ag-ink:#FFC9A6; --ga:#8AB4F8; --ga-bg:#1B2738;
+  --rule:#B7A6E0; --rule-bg:#2A2438; --ok:#7FD1A6; --ok-bg:#1B2E24;}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 var(--body);padding:28px 20px 60px}
+.wrap{max-width:1500px;margin:0 auto}
+h1{font:700 30px/1.15 var(--display);margin:0;letter-spacing:-.015em}
+h2{font:700 21px/1.2 var(--display);margin:0;letter-spacing:-.01em}
+p{margin:0}
+
+/* ---------- topo ---------- */
+.top{display:flex;flex-wrap:wrap;align-items:flex-end;gap:14px 28px;margin-bottom:10px}
+.lede{color:var(--ink2);font-size:15px;margin-top:6px;max-width:92ch}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12.5px;color:var(--ink2);align-items:center;margin-left:auto}
+.legend span{display:inline-flex;gap:6px;align-items:center}
+.sw{width:16px;height:11px;border-radius:3px;display:inline-block}
+nav{position:sticky;top:0;z-index:5;background:var(--bg);padding:12px 0;margin-bottom:6px;display:flex;flex-wrap:wrap;gap:8px;border-bottom:1px solid var(--line)}
+nav a{font:600 12.5px var(--body);padding:6px 12px;border-radius:99px;border:1px solid var(--line);background:var(--surface);color:var(--ink);text-decoration:none}
+nav a:hover{border-color:var(--ink2)}
+nav a:focus-visible,.shot:focus-visible,.lb button:focus-visible{outline:2px solid var(--ag);outline-offset:2px}
+
+/* ---------- seções ---------- */
+section{margin-top:34px;scroll-margin-top:70px}
+.cab{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;margin-bottom:6px}
+.cen{font:600 11px var(--body);letter-spacing:.09em;text-transform:uppercase;color:var(--ag-ink);background:var(--ag-bg);padding:3px 9px;border-radius:99px}
+.sub{color:var(--ink2);max-width:100ch;margin-bottom:16px}
+.grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:22px 18px}
+figure{margin:0;display:flex;flex-direction:column;gap:9px}
+.shot{display:block;padding:0;border:0;background:none;cursor:zoom-in;border-radius:11.8%/5.6%;transition:transform .15s;
+  filter:drop-shadow(0 6px 14px rgba(0,0,0,.16))}
+.shot:hover{transform:translateY(-2px)}
+/* as capturas trazem o fundo do protótipo nos cantos: o raio acompanha a moldura de cada celular */
+.shot img{display:block;width:100%;height:auto;border-radius:11.8%/5.6%}
+#app .shot,#app .shot img{border-radius:9%/4.6%}
+figcaption b{font:600 14px/1.3 var(--display);display:block}
+figcaption small{display:block;color:var(--ink2);font-size:12.5px;line-height:1.45;margin-top:3px}
+.tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.t{font:500 10.5px/1.6 var(--body);padding:0 7px;border-radius:6px;overflow-wrap:anywhere}
+.t.ag{background:var(--ag-bg);color:var(--ag-ink)}
+.t.cd{background:var(--sunk);color:var(--ink2);border:1px dashed var(--muted)}
+.t.rg{background:var(--rule-bg);color:var(--rule)}
+.t.gd{background:var(--ga-bg);color:var(--ga)}
+.passo{font:700 11px var(--display);color:var(--muted);letter-spacing:.04em}
+.rodape{margin-top:44px;padding-top:14px;border-top:1px solid var(--line);color:var(--muted);font-size:12.5px;max-width:110ch}
+
+/* ---------- visor ---------- */
+.lb{position:fixed;inset:0;z-index:20;background:rgba(15,14,12,.86);display:none;align-items:center;justify-content:center;gap:18px;padding:20px}
+.lb.on{display:flex}
+.lb figure{max-height:100%;align-items:center;color:#EDE8DF}
+.lb img{max-height:calc(100vh - 130px);max-width:min(92vw,520px);width:auto;border-radius:11.8%/5.6%}
+.lb.app img{border-radius:9%/4.6%}
+.lb figcaption{max-width:520px;text-align:center}
+.lb figcaption small{color:#BDB6AA}
+.lb button{font:600 20px var(--body);width:44px;height:44px;border-radius:50%;border:1px solid #57534B;background:#211F1B;color:#EDE8DF;cursor:pointer;flex:none}
+.lb .fechar{position:absolute;top:16px;right:16px}
+@media (max-width:640px){
+  body{padding:20px 16px 48px}
+  h1{font-size:24px}
+  .grade{grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 12px}
+  .legend{margin-left:0}
+  .lb .ant,.lb .prox{position:absolute;bottom:16px}
+  .lb .ant{left:16px}.lb .prox{right:16px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Telas do protótipo</h1>
+      <p class="lede">O ITA funcionando de ponta a ponta com a API publicada no Cloud Run: extrato real da base do hackathon no BigQuery, agentes Gemini e regras em código. Toque numa tela para ampliar.</p>
+    </div>
+    <div class="legend" aria-label="Legenda das etiquetas">
+      <span><i class="sw" style="background:var(--ag-bg)"></i> Agente Gemini</span>
+      <span><i class="sw" style="background:var(--sunk);border:1px dashed var(--muted)"></i> Código, sem IA</span>
+      <span><i class="sw" style="background:var(--rule-bg)"></i> Regras de produto</span>
+      <span><i class="sw" style="background:var(--ga-bg)"></i> Guard / guardrail</span>
+    </div>
+  </header>
+
+  <nav aria-label="Seções">
+    <a href="#whatsapp">WhatsApp</a>
+    <a href="#previsibilidade">1 · Previsibilidade</a>
+    <a href="#proatividade">2 · Proatividade</a>
+    <a href="#produtos">3 · Produtos</a>
+    <a href="#seguranca">Clarificação e segurança</a>
+    <a href="#app">App Itaú (IA.I)</a>
+  </nav>
+
+  <section id="whatsapp">
+    <div class="cab"><h2>O ITA no WhatsApp</h2></div>
+    <p class="sub">O ITA começa a conversa. Os atalhos do menu respondem direto do motor de cálculo, sem chamar a IA. Texto livre, áudio e foto vão para o time de agentes.</p>
+    <div class="grade">
+      <figure><button class="shot"><img src="telas/01-lista.png" alt="Lista de conversas do WhatsApp com mensagem não lida do ITA | Itaú" loading="lazy"></button>
+        <figcaption><span class="passo">01</span><b>O ITA chama o cliente</b><small>A conversa chega como mensagem não lida de uma conta oficial verificada.</small></figcaption></figure>
+      <figure><button class="shot"><img src="telas/02-saudacao.png" alt="Saudação do ITA com o botão Ver opções" loading="lazy"></button>
+        <figcaption><span class="passo">02</span><b>Saudação</b><small>Aviso de segurança da conversa e um botão para ver o que o ITA faz.</small></figcaption></figure>
+      <figure><button class="shot"><img src="telas/03-menu.png" alt="Lista de opções: até o próximo salário, saldo 90 dias, simular compra, gastos, avisos, perguntar ao ITA" loading="lazy"></button>
+        <figcaption><span class="passo">03</span><b>Menu de lista</b><small>Seis atalhos no formato de lista do WhatsApp. O último abre a conversa livre com os agentes.</small></figcaption></figure>
+      <figure><button class="shot"><img src="telas/04-ate-salario.png" alt="Resposta do atalho até o próximo salário com valores sugeridos" loading="lazy"></button>
+        <figcaption><span class="passo">04</span><b>“Até o próximo salário dá?”</b><small>Saldo projetado até a renda, com valores sugeridos para simular.</small>
+          <div class="tags"><span class="t cd">engine.ate_proximo_salario</span></div></figcaption></figure>
+    </div>
+  </section>
+
+  <section id="previsibilidade">
+    <div class="cab"><span class="cen">Cenário 1</span><h2>Previsibilidade</h2></div>
+    <p class="sub">O especialista escolhe a tool que a pergunta pede e decide se um gráfico ajuda. Todo número na resposta vem da tool, e os guardrails de saída conferem o texto antes do envio.</p>
+    <div class="grade">
+      <figure><button class="shot"><img src="telas/05-dinheiro-acabando.png" alt="Resposta sobre gastos subindo com gráfico de categorias" loading="lazy"></button>
+        <figcaption><span class="passo">05</span><b>“Por que meu dinheiro está acabando?”</b><small>Os gastos subiram R$ 1.956,92 acima da média. O gráfico destaca a categoria que mais cresceu.</small>
+          <div class="tags"><span class="t ag">PREVISIBILIDADE</span><span class="t cd">comparar_gastos</span><span class="t cd">gráfico: categorias</span></div></figcaption></figure>
+      <figure><button class="shot"><img src="telas/05-dinheiro-acabando-b.png" alt="Continuação com recomendações práticas" loading="lazy"></button>
+        <figcaption><span class="passo">05 · fim</span><b>O que fazer agora</b><small>Recomendações que o próprio cliente pode seguir, calculadas com os números dele. No fim, a escolha volta para o cliente.</small></figcaption></figure>
+      <figure><button class="shot"><img src="telas/06-plr.png" alt="Resposta sobre uso da PLR comparando quitar parcelas e guardar" loading="lazy"></button>
+        <figcaption><span class="passo">06</span><b>“Recebi minha PLR”</b><small>Compara quitar as parcelas com guardar o dinheiro: alívio por mês, saldo negativo e reserva antes de investir.</small>
+          <div class="tags"><span class="t ag">PREVISIBILIDADE</span><span class="t cd">simular_dinheiro_extra</span></div></figcaption></figure>
+      <figure><button class="shot"><img src="telas/07-foto-etiqueta.png" alt="Cliente envia foto de etiqueta de celular e o ITA responde com o gasto máximo seguro" loading="lazy"></button>
+        <figcaption><span class="passo">07</span><b>Foto da etiqueta</b><small>O guard de imagem classifica a foto como preço de produto e o código libera. O valor lido na foto entra na conta até o salário.</small>
+          <div class="tags"><span class="t gd">guard de imagem</span><span class="t ag">PREVISIBILIDADE</span><span class="t cd">ate_salario</span></div></figcaption></figure>
+      <figure><button class="shot"><img src="telas/07-foto-etiqueta-b.png" alt="Continuação com os caminhos para comprar o celular" loading="lazy"></button>
+        <figcaption><span class="passo">07 · fim</span><b>Caminhos para a compra</b><small>Comprar agora, esperar uma parcela terminar ou poupar antes, cada um com o custo total.</small></figcaption></figure>
+    </div>
+  </section>
+
+  <section id="proatividade">
+    <div class="cab"><span class="cen">Cenário 2</span><h2>Proatividade</h2></div>
+    <p class="sub">O código detecta o evento no extrato, que aqui é uma parcela chegando ao fim, e o ITA avisa o cliente antes de ele perguntar. A resposta do botão vai direto ao especialista, sem passar pelo roteamento do Gemini.</p>
+    <div class="grade">
+      <figure><button class="shot"><img src="telas/12-gatilho-bloqueio.png" alt="Tela de bloqueio com notificação do WhatsApp do ITA sobre fim de parcela" loading="lazy"></button>
+        <figcaption><span class="passo">08</span><b>Notificação com o celular bloqueado</b><small>A mensagem de abertura é um modelo preenchido com os números do motor. Ela sempre educa e nunca traz oferta.</small>
+          <div class="tags"><span class="t cd">gatilhos.detectar · fim_parcela</span></div></figcaption></figure>
+      <figure><button class="shot"><img src="telas/13-gatilho-mensagem.png" alt="Mensagem do ITA sobre fim de parcela com botões Quero sim e Agora não" loading="lazy"></button>
+        <figcaption><span class="passo">09</span><b>O aviso na conversa</b><small>Os botões de resposta rápida levam a rota já definida.</small></figcaption></figure>
+      <figure><button class="shot"><img src="telas/14-gatilho-resposta.png" alt="Resposta com gráfico de projeção do saldo nos próximos meses" loading="lazy"></button>
+        <figcaption><span class="passo">10</span><b>“Quero sim”</b><small>O especialista continua a partir do aviso. O gráfico mostra o pior saldo de cada mês e destaca janeiro.</small>
+          <div class="tags"><span class="t ag">PROATIVIDADE</span><span class="t cd">projetar_saldo</span><span class="t cd">gráfico: saldo_meses</span></div></figcaption></figure>
+      <figure><button class="shot"><img src="telas/14-gatilho-resposta-b.png" alt="Continuação com passos práticos" loading="lazy"></button>
+        <figcaption><span class="passo">10 · fim</span><b>O que fazer com a folga</b><small>Como o saldo está negativo, a recomendação é usar a parcela liberada para sair do cheque especial, e não assumir um compromisso novo.</small></figcaption></figure>
+    </div>
+  </section>
+
+  <section id="produtos">
+    <div class="cab"><span class="cen">Cenário 3</span><h2>Produtos</h2></div>
+    <p class="sub">O agente monta os caminhos e as regras em código decidem se existe oferta, sempre no máximo uma. Simular e contratar acontecem dentro da conversa. A contratação é só de demonstração e a elegibilidade é simulada a partir do extrato.</p>
+    <div class="grade">
+      <figure><button class="shot"><img src="telas/15-produto-oferta.png" alt="Pergunta sobre comprar carro de R$ 30 mil e comparação de caminhos com gráfico" loading="lazy"></button>
+        <figcaption><span class="passo">11</span><b>“Meu carro quebrou”</b><small>Três caminhos simulados dia a dia (à vista, entrada + 24x, entrada maior + 12x), com custo total e taxa hipotética.</small>
+          <div class="tags"><span class="t ag">PRODUTOS</span><span class="t cd">simular_cenarios</span><span class="t cd">gráfico: custo_caminhos</span></div></figcaption></figure>
+      <figure><button class="shot"><img src="telas/15-produto-oferta-b.png" alt="Recomendação e bloco Oferta Itaú com botões Simular e Contratar" loading="lazy"></button>
+        <figcaption><span class="passo">12</span><b>Oferta liberada pela regra</b><small>A necessidade é urgente e há capacidade de pagamento, então a regra libera o Financiamento Itaú. O bloco de oferta vem depois da recomendação e traz o aviso de análise de crédito.</small>
+          <div class="tags"><span class="t rg">R005 · financiamento</span><span class="t gd">guardrails de saída</span></div></figcaption></figure>
+      <figure><button class="shot"><img src="telas/16-fluxo-simular.png" alt="Formulário simular financiamento com valor, entrada e prazo" loading="lazy"></button>
+        <figcaption><span class="passo">13</span><b>Simular</b><small>Formulário já preenchido com o cenário da oferta.</small></figcaption></figure>
+      <figure><button class="shot"><img src="telas/17-fluxo-resultado.png" alt="Resultado: 24 parcelas de R$ 775,21, comprometimento de 20,2% para 27,9%" loading="lazy"></button>
+        <figcaption><span class="passo">14</span><b>Resultado</b><small>Parcela, custo total, juros e dívida sobre a renda antes e depois, contra o limite de 35%. Também confere se o saldo fica positivo nos próximos 90 dias.</small>
+          <div class="tags"><span class="t cd">contratacao.simular</span></div></figcaption></figure>
+      <figure><button class="shot"><img src="telas/18-fluxo-revisao.png" alt="Revise e confirme com aceite das condições" loading="lazy"></button>
+        <figcaption><span class="passo">15</span><b>Revisão e aceite</b><small>Condições, direito de desistir em 7 dias e o aviso de que a contratação depende de análise de crédito.</small></figcaption></figure>
+      <figure><button class="shot"><img src="telas/19-fluxo-autenticacao.png" alt="Confirme que é você: biometria ou aprovar no app Itaú" loading="lazy"></button>
+        <figcaption><span class="passo">16</span><b>Autenticação</b><small>Biometria ou aprovação no app. O ITA nunca pede senha na conversa.</small></figcaption></figure>
+      <figure><button class="shot"><img src="telas/20-fluxo-protocolo.png" alt="Proposta enviada com protocolo e status em análise" loading="lazy"></button>
+        <figcaption><span class="passo">17</span><b>Proposta enviada</b><small>A API refaz a simulação antes de gerar o protocolo, e a proposta fica com status “em análise”.</small>
+          <div class="tags"><span class="t cd">contratacao.contratar</span></div></figcaption></figure>
+      <figure><button class="shot"><img src="telas/21-celular-sem-oferta.png" alt="Pergunta sobre celular em 12x e resposta recomendando não comprar agora" loading="lazy"></button>
+        <figcaption><span class="passo">18</span><b>Celular em 12x: sem oferta</b><small>Numa compra do dia a dia, a regra bloqueia os produtos. O ITA compara parcelar agora, esperar e poupar, e diz com franqueza que hoje não recomenda.</small>
+          <div class="tags"><span class="t ag">PRODUTOS</span><span class="t rg">R013 · sem produto</span></div></figcaption></figure>
+      <figure><button class="shot"><img src="telas/21-celular-sem-oferta-b.png" alt="Continuação com a recomendação de esperar a parcela terminar" loading="lazy"></button>
+        <figcaption><span class="passo">18 · fim</span><b>Recomendação sem produto</b><small>Esperar a parcela terminar em janeiro. A decisão fica com o cliente.</small></figcaption></figure>
+    </div>
+  </section>
+
+  <section id="seguranca">
+    <div class="cab"><h2>Clarificação e segurança</h2></div>
+    <p class="sub">Quando a mensagem é ambígua, o ITA pergunta em vez de adivinhar. Dados sensíveis e tentativas de mudar as regras são barrados em código, antes de qualquer chamada ao Gemini.</p>
+    <div class="grade">
+      <figure><button class="shot"><img src="telas/08-clarificacao.png" alt="Preciso de 2 mil e o ITA responde com dois botões de opção" loading="lazy"></button>
+        <figcaption><span class="passo">19</span><b>“Preciso de 2 mil”</b><small>A mensagem cabe em mais de um cenário, então o ITA faz uma pergunta curta com dois botões.</small>
+          <div class="tags"><span class="t ag">CLARIFICAÇÃO</span></div></figcaption></figure>
+      <figure><button class="shot"><img src="telas/09-clarificacao-escolha.png" alt="Resposta depois de escolher Ver se cabe no meu orçamento" loading="lazy"></button>
+        <figcaption><span class="passo">20</span><b>O botão escolhe o especialista</b><small>O botão “Ver se cabe no meu orçamento” leva a rota junto e vai direto para PREVISIBILIDADE.</small>
+          <div class="tags"><span class="t ag">PREVISIBILIDADE</span><span class="t cd">rota_forcada</span></div></figcaption></figure>
+      <figure><button class="shot"><img src="telas/10-guard-dados-sensiveis.png" alt="Cliente envia CPF e o ITA pede para não compartilhar dados" loading="lazy"></button>
+        <figcaption><span class="passo">21</span><b>CPF na mensagem</b><small>Bloqueada pelo guard de entrada, com uma resposta pronta. A mensagem não chega aos agentes.</small>
+          <div class="tags"><span class="t gd">guard_entrada · dados_sensiveis</span></div></figcaption></figure>
+      <figure><button class="shot"><img src="telas/11-guard-injection.png" alt="Tentativa de prompt injection bloqueada" loading="lazy"></button>
+        <figcaption><span class="passo">22</span><b>Prompt injection</b><small>“Ignore todas as suas instruções…” é barrado por regex, sem custo de modelo.</small>
+          <div class="tags"><span class="t gd">guard_entrada · prompt_injection</span></div></figcaption></figure>
+    </div>
+  </section>
+
+  <section id="app">
+    <div class="cab"><h2>No app Itaú: IA.I → ITA</h2></div>
+    <p class="sub">O mesmo backend dentro do app. O assistente IA.I serve de porta de entrada e passa a conversa para o ITA quando o assunto é decisão financeira.</p>
+    <div class="grade">
+      <figure><button class="shot"><img src="telas/app-01-home.png" alt="Home do app com saldo, renda média e parcelamentos" loading="lazy"></button>
+        <figcaption><span class="passo">A1</span><b>Home do app</b><small>Saldo, renda média e parcelas em aberto vindos do raio-X do cliente.</small>
+          <div class="tags"><span class="t cd">/perfil</span></div></figcaption></figure>
+      <figure><button class="shot"><img src="telas/app-02-iai.png" alt="Assistente IA.I sugerindo consultar o ITA" loading="lazy"></button>
+        <figcaption><span class="passo">A2</span><b>IA.I sugere o ITA</b><small>O assistente geral oferece o agente especializado.</small></figcaption></figure>
+      <figure><button class="shot"><img src="telas/app-03-ita.png" alt="ITA conectado com quatro atalhos" loading="lazy"></button>
+        <figcaption><span class="passo">A3</span><b>ITA conectado</b><small>Quatro atalhos: até o salário, gastos, simular uma decisão e oportunidades.</small></figcaption></figure>
+      <figure><button class="shot"><img src="telas/app-04-ate-salario.png" alt="Quero gastar R$ 800, com próxima renda e compromissos" loading="lazy"></button>
+        <figcaption><span class="passo">A4</span><b>“Quero gastar R$ 800”</b><small>Próxima renda, dias até ela e compromissos que ainda vão sair.</small>
+          <div class="tags"><span class="t cd">/ate-salario</span></div></figcaption></figure>
+      <figure><button class="shot"><img src="telas/app-05-ate-salario-fim.png" alt="Comparação com e sem o gasto e gráfico" loading="lazy"></button>
+        <figcaption><span class="passo">A5</span><b>Com e sem o gasto</b><small>Saldo projetado nas duas situações, dias no negativo e um valor mais seguro para simular.</small></figcaption></figure>
+      <figure><button class="shot"><img src="telas/app-06-comparar.png" alt="Comparação de caminhos para celular de R$ 3.000 em 12x" loading="lazy"></button>
+        <figcaption><span class="passo">A6</span><b>Simular uma decisão</b><small>Celular de R$ 3.000: 12x agora, 6x, entrada ou esperar 5 meses, com a sugestão do motor.</small>
+          <div class="tags"><span class="t cd">/comparar</span></div></figcaption></figure>
+    </div>
+  </section>
+
+  <p class="rodape">Telas capturadas em 27/09/2026 dos protótipos <code>web/whatsapp.html</code> e <code>web/index.html</code>, ligados à API de produção. Os clientes são da base sintética do hackathon e os nomes exibidos são gerados pelo protótipo. As respostas escritas vêm do Gemini e mudam de uma execução para outra, mas os números vêm sempre do motor.</p>
+</div>
+
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Tela ampliada">
+  <button class="fechar" type="button" aria-label="Fechar">✕</button>
+  <button class="ant" type="button" aria-label="Tela anterior">‹</button>
+  <figure><img id="lbImg" alt=""><figcaption id="lbCap"></figcaption></figure>
+  <button class="prox" type="button" aria-label="Próxima tela">›</button>
+</div>
+
+<script>
+const telas = [...document.querySelectorAll('.grade figure')];
+const lb = document.getElementById('lb'), img = document.getElementById('lbImg'), cap = document.getElementById('lbCap');
+let atual = 0, origem = null;
+function mostrar(i) {
+  atual = (i + telas.length) % telas.length;
+  const f = telas[atual], im = f.querySelector('img');
+  img.src = im.src; img.alt = im.alt;
+  lb.classList.toggle('app', !!f.closest('#app'));
+  const c = f.querySelector('figcaption').cloneNode(true); c.querySelector('.tags')?.remove();
+  cap.innerHTML = c.innerHTML;
+}
+function abrir(i) { origem = document.activeElement; mostrar(i); lb.classList.add('on'); lb.querySelector('.fechar').focus() }
+function fechar() { lb.classList.remove('on'); origem?.focus() }
+telas.forEach((f, i) => f.querySelector('.shot').addEventListener('click', () => abrir(i)));
+lb.querySelector('.fechar').onclick = fechar;
+lb.querySelector('.ant').onclick = () => mostrar(atual - 1);
+lb.querySelector('.prox').onclick = () => mostrar(atual + 1);
+lb.addEventListener('click', e => { if (e.target === lb) fechar() });
+document.addEventListener('keydown', e => {
+  if (!lb.classList.contains('on')) return;
+  if (e.key === 'Escape') fechar();
+  if (e.key === 'ArrowLeft') mostrar(atual - 1);
+  if (e.key === 'ArrowRight') mostrar(atual + 1);
+});
+</script>
+</body>
+</html>
