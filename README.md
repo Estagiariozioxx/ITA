@@ -7,6 +7,17 @@ O ITA conversa com o cliente no WhatsApp (mock em `/whatsapp`) e cobre três cen
 (quanto dá para gastar, se o saldo vai ficar negativo), **proatividade** (avisos que partem de eventos do extrato)
 e **produtos** (comprar, parcelar, crédito, onde pôr a sobra), sempre seguindo a Res. Conjunta nº 8.
 
+## Apresentação
+
+A pasta [`apresentação/`](apresentação/) tem páginas HTML autocontidas: é só abrir no navegador.
+
+| Página | Conteúdo |
+|---|---|
+| [`arquitetura-agentes.html`](apresentação/arquitetura-agentes.html) | fluxo clicável, chamadas ao Gemini por rota, prompts de cada agente e motores em código |
+| [`fluxo-agentes.html`](apresentação/fluxo-agentes.html) | caminho de uma mensagem: entrada, orquestrador, especialistas, conferência e resposta |
+| [`telas-prototipo.html`](apresentação/telas-prototipo.html) | telas do WhatsApp e do app Itaú rodando contra a API de produção, por cenário ([capturas em `telas/`](apresentação/telas/)) |
+| [`tom-de-voz.html`](apresentação/tom-de-voz.html) | como o ITA fala: princípios, tom por situação, forma no WhatsApp e exemplos reais |
+
 ---
 
 # Desenho de solução
@@ -131,6 +142,48 @@ Camadas, na ordem em que a mensagem passa:
 - **Auditoria de números:** o guardrail `numero_sem_origem` registra valores que o agente escreveu sem base nas tools.
 - **Saúde:** `GET /health` (usado pelo `HEALTHCHECK` do Docker) e `GET /info` (modelo e fonte de dados).
 - **Erros do Gemini** viram 503 (cota/alta demanda) ou 502 com motivo, em vez de 500 genérico.
+
+## Tom de voz
+
+O ITA fala como **alguém de confiança que entende de dinheiro**, conversando no WhatsApp com quem tem pouco
+letramento financeiro. As regras estão no prompt de todo agente que escreve para o cliente
+([`agentes.py`](app/agents/agentes.py): `REGRAS_RES8`, `FORMATO_WHATSAPP`, `COMO_RESPONDER`, `EXEMPLOS`); o que é
+objetivo também é conferido em código pelos guardrails de saída.
+
+**Princípios**
+
+- **Educa antes de resolver:** explica o que está acontecendo com o dinheiro dele antes de sugerir um caminho.
+- **Recomenda sem pressionar:** diz o que faria e por quê, sem julgar, e termina devolvendo a escolha ao cliente.
+- **Honesto com os números:** só usa valores das tools, mostra o custo total (não só a parcela) e marca como
+  "hipotética" a taxa que o cliente não informou.
+- **Sem promessas:** nada de "garantido", "sem risco" ou "aprovado" (o guardrail troca por linguagem neutra).
+- **Espelha o cliente:** se ele escreve curto e informal, a resposta é curta e informal.
+
+**Tom conforme a situação**
+
+| Situação | Tom | Exemplo |
+|---|---|---|
+| Aperto ou saldo negativo | acolhedor e direto, frases curtas, no máximo 1 emoji, sem aula; foco no que dá para fazer já | "Vou ser direto: do jeito que está, a conta entra no vermelho dia *12/03*, logo depois do aluguel." |
+| Sobra ou boa notícia | pode comemorar e convidar a planejar | "Que mês bom! 🎉 Você não entrou no negativo nenhuma vez e ainda sobraram *R$ 640*." |
+| Pergunta pontual | leve e objetivo, de 1 a 3 frases | "Dá sim 🙂 Mesmo gastando *R$ 200* hoje, você chega ao salário do dia *05/02* com uns *R$ 380* de folga." |
+| Decisão com caminhos | compara, recomenda e devolve a escolha | "Eu iria de *B*: são só 2 meses de espera e você não paga juros de cheque especial. Qual faz mais sentido para você?" |
+| Mensagem ambígua | pergunta curta e acolhedora, com botões | "Posso te ajudar de dois jeitos 🙂 O que faz mais sentido agora?" |
+
+Os avisos proativos ([`gatilhos.py`](app/services/gatilhos.py)) seguem o mesmo critério: tom **positivo** para fim
+de parcela e mês no azul, **neutro** para aumento de entradas e dia do salário, e **negativo** (acolhedor) para
+pressão financeira e gasto fora do normal. A abertura é sempre educativa, nunca oferta.
+
+**Forma no WhatsApp**
+
+- Trata por "você", palavras do dia a dia; nada de "prezado" nem jargão ("fluxo de caixa", "liquidez").
+- Parágrafos de 1 a 3 frases; listas só com 3 ou mais itens comparáveis.
+- Negrito do WhatsApp (`*R$ 1.200,00*`) só em valores, datas e na recomendação; valores em `R$ 1.234,56` e datas
+  em `dia/mês`.
+- No máximo um emoji por título ou parágrafo.
+- Tamanho proporcional à pergunta: pontual em até 3 frases, situação em 60–130 palavras, decisão em até 200
+  palavras (sem contar o bloco de oferta).
+- Abertura pelo que mais importa agora (o sim/não, o número principal, a boa notícia ou o alerta), nunca uma
+  fórmula fixa; estrutura e títulos variam entre respostas.
 
 ---
 
