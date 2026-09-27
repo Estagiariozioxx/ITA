@@ -47,53 +47,6 @@ vêm de tools que buscam o extrato no BigQuery e calculam em código (`tools.py`
 aparecer e se há oferta é decidido pelas regras de `produtos.py`, não pelo LLM. As regras da Res. Conjunta nº 8 estão no prompt de cada agente e os guardrails
 de saída conferem cada resposta em código antes de ela chegar ao cliente.
 
-## 1. Antes de tudo (BigQuery Studio)
-
-Rode `sql/diagnostico.sql`. O motor assume `tipo = 'S'` para saídas.
-Se for outro valor, defina `TIPO_SAIDA` no deploy.
-
-## 2. Rodar localmente
-
-```bash
-pip install -r requirements-dev.txt
-
-# sem GCP, com dados sintéticos
-python scripts/gerar_dados_teste.py
-DATA_SOURCE=csv uvicorn app.main:app --reload
-pytest -q
-
-# com BigQuery e Gemini de verdade (no Cloud Shell já existe ADC)
-gcloud auth application-default login
-gcloud auth application-default set-quota-project batalha-time-01-97zr
-cp .env.example .env && export $(grep -v '^#' .env | xargs)
-uvicorn app.main:app --reload
-```
-
-Chat dos agentes no ADK Dev UI: `adk web adk_agents` e, no painel State,
-adicione `{"id_usuario": "<id de um cliente>"}`.
-
-### Com Docker
-
-```bash
-# demo sem GCP (CSV sintético embutido na imagem): http://localhost:8080/docs
-docker compose up --build
-curl localhost:8080/clientes/camila-demo/alertas
-
-# BigQuery + Vertex com suas credenciais ADC: http://localhost:8081/docs
-gcloud auth application-default login
-docker compose --profile gcp up --build api-gcp
-```
-
-No modo demo, o `/chat` só funciona com `GOOGLE_API_KEY` e `GOOGLE_GENAI_USE_VERTEXAI=FALSE` no `.env`.
-A mesma imagem é usada no Cloud Run (lá o padrão é `DATA_SOURCE=bigquery`).
-
-## 3. Deploy
-
-```bash
-bash deploy.sh                 # Vertex AI via ADC (recomendado)
-USE_API_KEY=1 bash deploy.sh   # usa o segredo gemini-api-key do Secret Manager
-```
-
 ## Endpoints
 
 | Método | Rota | Para quê |
@@ -107,20 +60,6 @@ USE_API_KEY=1 bash deploy.sh   # usa o segredo gemini-api-key do Secret Manager
 | GET | `/clientes/{id}/alertas` | avisos proativos (aperto, parcela terminando, sobra -> reserva/investir) |
 | POST | `/jobs/alertas?limite=50` | varredura para o Cloud Scheduler |
 | POST | `/chat` | conversa com os agentes (`id_usuario, mensagem, session_id?`) |
-
-Resposta do `/chat`:
-
-```json
-{
-  "session_id": "…",
-  "resposta": "texto final validado pelo Guardião",
-  "dados_tela": {"perfil": {...}, "comparacao": {...}},
-  "trilha": [{"agente": "entender", "acao": "ferramenta", "ferramenta": "consultar_perfil"}, ...]
-}
-```
-
-`dados_tela` traz as séries diárias para desenhar os gráficos; `trilha` mostra
-cada agente trabalhando (bom para o painel "por dentro" da apresentação).
 
 ## Exemplos
 
@@ -140,10 +79,3 @@ Alerta proativo diário (opcional):
 gcloud scheduler jobs create http ita-alertas --location=us-central1 \
   --schedule="0 8 * * *" --uri="$URL/jobs/alertas?limite=1000" --http-method=POST
 ```
-
-## Limites conhecidos
-
-- Sessões em memória: com `--session-affinity` a conversa fica na mesma instância;
-  para produção, troque por `VertexAiSessionService` ou `DatabaseSessionService`.
-- `SequentialAgent` aparece como obsoleto no ADK 2.x (em favor de Workflow), mas funciona.
-- Projeção usa médias dos últimos 90 dias para o gasto variável; eventos únicos não são previstos.
