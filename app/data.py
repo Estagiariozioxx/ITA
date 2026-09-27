@@ -51,6 +51,23 @@ class BigQueryRepo:
         self._cache[id_usuario] = (time.time(), df)
         return df
 
+    def extratos(self, ids: list[str]) -> dict[str, pd.DataFrame]:
+        """Extratos de vários clientes numa única query (e já guarda no cache)."""
+        agora = time.time()
+        faltam = [u for u in ids if not (u in self._cache and agora - self._cache[u][0] < config.CACHE_TTL)]
+        if faltam:
+            sql = f"""
+                SELECT {", ".join(COLUNAS)}
+                FROM `{config.BQ_TABLE}`
+                WHERE id_usuario IN UNNEST(@ids)
+                ORDER BY id_usuario, anomesdia
+            """
+            job = self.client.query(sql, job_config=self._bq.QueryJobConfig(
+                query_parameters=[self._bq.ArrayQueryParameter("ids", "STRING", faltam)]))
+            for uid, df in job.to_dataframe().groupby("id_usuario"):
+                self._cache[uid] = (agora, df.reset_index(drop=True))
+        return {u: self._cache[u][1] for u in ids if u in self._cache}
+
     def usuarios(self, limite: int = 50) -> list[str]:
         sql = f"""
             SELECT DISTINCT id_usuario FROM `{config.BQ_TABLE}`
@@ -70,6 +87,10 @@ class CsvRepo:
         if df.empty:
             raise ClienteNaoEncontrado(id_usuario)
         return df.copy()
+
+    def extratos(self, ids: list[str]) -> dict[str, pd.DataFrame]:
+        sub = self.df[self.df["id_usuario"].isin(ids)]
+        return {u: g.copy() for u, g in sub.groupby("id_usuario")}
 
     def usuarios(self, limite: int = 50) -> list[str]:
         return sorted(self.df["id_usuario"].unique().tolist())[:limite]

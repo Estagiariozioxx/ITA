@@ -235,11 +235,14 @@ def projetar(
     dias: int = 90,
     compra: dict | None = None,
     pf: dict | None = None,
+    extras: list[dict] | None = None,
 ) -> dict:
     """Projeta o saldo dia a dia.
 
     compra = {"valor": 3000, "parcelas": 12, "entrada": 0, "meses_espera": 0,
               "taxa_mensal": 0.0, "dia_vencimento": 10}
+    extras = lançamentos futuros avulsos:
+             [{"data": date, "valor": -250.0, "descricao": "...", "origem": "objetivo"}]
     """
     pf = pf or perfil(d)
     inicio = dt.date.fromisoformat(pf["data_referencia"]) + dt.timedelta(days=1)
@@ -283,6 +286,10 @@ def projetar(
             for k in range(1, n + 1):
                 add(_data_no_mes(data_compra.year, data_compra.month + k, dia_venc),
                     -parcela_nova, f"nova compra ({k}/{n})", "compra")
+
+    for e in extras or []:
+        data = dt.date.fromisoformat(e["data"]) if isinstance(e["data"], str) else e["data"]
+        add(data, e["valor"], e["descricao"], e["origem"])
 
     var_dia = pf["entrada_variavel_diaria"] - pf["gasto_variavel_diario"]
     saldo = pf["saldo_atual"]

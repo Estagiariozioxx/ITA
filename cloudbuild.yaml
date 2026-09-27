@@ -36,7 +36,7 @@ steps:
       - --memory=1Gi
       - --cpu=1
       - --timeout=300
-      - --set-env-vars=GOOGLE_CLOUD_PROJECT=${PROJECT_ID},GOOGLE_CLOUD_LOCATION=${_REGION},GOOGLE_GENAI_USE_VERTEXAI=TRUE,MODEL=${_MODEL},BQ_TABLE=${PROJECT_ID}.hackathon_dados.extrato_sintetico,TIPO_SAIDA=${_TIPO_SAIDA}
+      - --set-env-vars=GOOGLE_CLOUD_PROJECT=${PROJECT_ID},GOOGLE_CLOUD_LOCATION=global,GOOGLE_GENAI_USE_VERTEXAI=TRUE,MODEL=${_MODEL},BQ_TABLE=${PROJECT_ID}.hackathon_dados.extrato_sintetico,TIPO_SAIDA=${_TIPO_SAIDA}
       - --quiet
 
 substitutions:

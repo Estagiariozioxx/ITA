@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ITA · Arquitetura de agentes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#F5F2EC; --surface:#FFFDF9; --sunk:#ECE7DE; --ink:#1C1B19; --ink2:#57534B; --muted:#8A847A; --line:#CFC6B8;
+  --ag:#C2410C; --ag-bg:#FCEADF; --ag-ink:#8A2E08;
+  --cd:#2F5D50; --cd-bg:#E3EEE9; --cd-ink:#1F4238;
+  --warn:#9A6700;
+  --display:"Sora",ui-sans-serif,system-ui,sans-serif; --body:"DM Sans",ui-sans-serif,system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root{
+  color-scheme:dark; --bg:#171613; --surface:#211F1B; --sunk:#2A2722; --ink:#EDE8DF; --ink2:#BDB6AA; --muted:#8E877C; --line:#4A443B;
+  --ag:#F08A4B; --ag-bg:#3A2519; --ag-ink:#FFC9A6; --cd:#7CC7A0; --cd-bg:#1C2E27; --cd-ink:#BFE6D1; --warn:#E3B341;}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 var(--body);padding-inline:16px;padding-block:32px 64px}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:40px}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance;letter-spacing:-.01em}
+h1{font-size:clamp(28px,4vw,40px);font-weight:700}
+h2{font-size:22px;font-weight:600}
+h3{font-size:16px;font-weight:600}
+p{margin:0}
+code{font-family:var(--mono);font-size:12.5px}
+.eyebrow{font:600 12px var(--body);letter-spacing:.1em;text-transform:uppercase;color:var(--ag)}
+.lede{color:var(--ink2);max-width:70ch;margin-top:10px;font-size:16px}
+.legend{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:13.5px;color:var(--ink2)}
+.legend span{display:inline-flex;align-items:center;gap:8px}
+.sw{width:22px;height:14px;border-radius:4px;display:inline-block}
+.sw.ag{background:var(--ag-bg);border:2px solid var(--ag)}
+.sw.cd{background:var(--cd-bg);border:2px solid var(--cd)}
+.sw.io{background:var(--surface);border:2px solid var(--line)}
+.sw.dash{border:2px dashed var(--muted);background:transparent}
+
+/* ---------- diagrama ---------- */
+.diagram-box{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:28px 20px;overflow-x:auto}
+.diagram{min-width:940px;display:flex;flex-direction:column;align-items:center}
+.node{display:block;text-decoration:none;color:inherit;border-radius:12px;padding:10px 14px;width:260px;text-align:center;border:2px solid var(--line);background:var(--surface);transition:transform .15s}
+.node:hover{transform:translateY(-2px)}
+.node:focus-visible{outline:3px solid var(--ag);outline-offset:3px}
+.node .t{font:600 14.5px var(--display);display:block}
+.node .s{font-size:12.5px;color:var(--ink2);display:block;margin-top:2px}
+.node .k{font:500 10.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;display:block;margin-bottom:3px}
+.node.ag{background:var(--ag-bg);border-color:var(--ag)}
+.node.ag .k{color:var(--ag)}
+.node.cd{background:var(--cd-bg);border-color:var(--cd)}
+.node.cd .k{color:var(--cd)}
+.node.io{background:var(--sunk)}
+.node.io .k{color:var(--muted)}
+.node.opt{border-style:dashed}
+.node.small{width:100%}
+.arrow{width:2px;height:26px;background:var(--ink2);position:relative;margin:0 auto;flex:none}
+.arrow::after{content:"";position:absolute;bottom:-1px;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top:8px solid var(--ink2);border-bottom:0}
+.arrow.lbl{height:34px}
+.arrow .al{position:absolute;left:10px;top:6px;font-size:11.5px;color:var(--muted);white-space:nowrap}
+.row{display:flex;align-items:center;gap:0}
+.side{display:flex;align-items:center}
+.hline{height:2px;width:46px;background:var(--ink2);position:relative}
+.hline::after{content:"";position:absolute;right:-1px;top:50%;transform:translateY(-50%);border:6px solid transparent;border-left:8px solid var(--ink2);border-right:0}
+.hline .al{position:absolute;top:-18px;left:4px;font-size:11.5px;color:var(--muted);white-space:nowrap}
+.spacer{width:246px} /* = seta lateral (46) + caixa "Resposta pronta" (200): mantém o guard no eixo */
+/* ramificação em 4 rotas */
+.branch{width:100%;position:relative;display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.bar{position:absolute;left:12.5%;right:12.5%;height:2px;background:var(--ink2)}
+.bar.top{top:0}
+.bar.bottom{bottom:0}
+.col{display:flex;flex-direction:column;align-items:center;padding-top:0}
+.col .stem{width:2px;height:18px;background:var(--ink2)}
+.col .endstem{width:2px;flex:1;min-height:18px;background:var(--ink2)}
+.route{font:600 12px var(--body);letter-spacing:.1em;text-transform:uppercase;padding:4px 10px;border-radius:99px;background:var(--ink);color:var(--bg);margin-bottom:0}
+.route-q{font-size:12px;color:var(--muted);text-align:center;margin:4px 0 0;max-width:210px;min-height:36px}
+.col .node{width:100%;max-width:220px}
+.merge-arrow{width:2px;height:26px;background:var(--ink2);position:relative}
+.merge-arrow::after{content:"";position:absolute;bottom:-1px;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top:8px solid var(--ink2);border-bottom:0}
+.loop{margin-top:14px;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--ink2);border:1.5px dashed var(--muted);border-radius:99px;padding:6px 14px}
+.loop b{color:var(--ink)}
+.note-inline{font-size:11.5px;color:var(--warn);text-align:center;max-width:220px;margin-top:2px}
+
+/* ---------- números ---------- */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+.stat{border-top:2px solid var(--ink);padding-top:10px}
+.stat b{font:700 26px var(--display);display:block;font-variant-numeric:tabular-nums}
+.stat span{font-size:13px;color:var(--ink2)}
+
+/* ---------- cards ---------- */
+.sec{display:flex;flex-direction:column;gap:16px}
+.sec-head p{color:var(--ink2);max-width:72ch;margin-top:6px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:10px;scroll-margin-top:20px}
+.card:target{outline:3px solid var(--ag);outline-offset:2px}
+.card .top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.card .file{font:12px var(--mono);color:var(--muted)}
+.tag{font:600 11px var(--body);letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:99px;white-space:nowrap}
+.tag.ag{background:var(--ag-bg);color:var(--ag-ink)}
+.tag.cd{background:var(--cd-bg);color:var(--cd-ink)}
+.card ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px;color:var(--ink2);font-size:14px}
+.card ul b{color:var(--ink)}
+.prompt{background:var(--sunk);border-radius:10px;padding:12px 14px;font-size:14px;color:var(--ink);border-left:3px solid var(--ag)}
+.prompt .pl{font:600 11px var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--ag);display:block;margin-bottom:4px}
+.meta{display:flex;flex-wrap:wrap;gap:6px}
+.meta span{font:12px var(--mono);background:var(--sunk);border-radius:6px;padding:2px 7px;color:var(--ink2)}
+.io-line{font-size:13px;color:var(--ink2)}
+.io-line code{color:var(--ink)}
+
+/* tabela */
+.tbl{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:14px}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:600 12px var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+td.n{font-variant-numeric:tabular-nums;font-weight:600;text-align:center}
+tr:last-child td{border-bottom:0}
+.principle{background:var(--ink);color:var(--bg);border-radius:16px;padding:22px 24px;display:grid;grid-template-columns:auto 1fr;gap:6px 18px;align-items:center}
+.principle b{font:700 20px var(--display)}
+.principle p{opacity:.85}
+footer{font-size:12.5px;color:var(--muted)}
+@media (max-width:640px){.principle{grid-template-columns:1fr}.cards{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.node{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">Batalha de Agentes Itaú · Time 01</div>
+  <h1 style="margin-top:8px">Arquitetura de agentes do ITA</h1>
+  <p class="lede">Como uma mensagem do cliente atravessa o ITA: o que é decidido por um agente Gemini, o que é calculado por código e o que cada agente recebe de instrução. Clique em qualquer caixa do fluxo para ver o detalhe.</p>
+</header>
+
+<div class="principle">
+  <b>O LLM explica, o código calcula.</b>
+  <p>O Gemini escolhe a rota, propõe cenários e escreve. Todo valor, data e percentual que o cliente vê sai do motor em Python.</p>
+</div>
+
+<section class="sec">
+  <div class="legend">
+    <span><i class="sw ag"></i> Agente Gemini (LLM)</span>
+    <span><i class="sw cd"></i> Código / motor determinístico</span>
+    <span><i class="sw io"></i> Entrada e saída</span>
+    <span><i class="sw dash"></i> Etapa condicional</span>
+  </div>
+
+  <div class="diagram-box" role="img" aria-label="Fluxo: mensagem, guard de entrada, orquestrador, entender, quatro rotas, guardião e resposta">
+  <div class="diagram">
+
+    <a class="node io" href="#c-api"><span class="k">entrada</span><span class="t">Mensagem do cliente</span><span class="s">POST /chat · id_usuario + texto</span></a>
+    <div class="arrow"></div>
+
+    <div class="row">
+      <span class="spacer"></span>
+      <a class="node cd" href="#c-guard"><span class="k">código · sem LLM</span><span class="t">Guard de entrada</span><span class="s">regras fixas: injeção, dados sensíveis, ilícito, fora do escopo</span></a>
+      <span class="side"><span class="hline"><span class="al">bloqueou</span></span><a class="node io" href="#c-guard" style="width:200px"><span class="k">saída</span><span class="t">Resposta pronta</span><span class="s">0 chamadas ao Gemini</span></a></span>
+    </div>
+    <div class="arrow lbl"><span class="al">aprovada</span></div>
+
+    <a class="node ag" href="#p-orquestrador"><span class="k">agente gemini</span><span class="t">ORQUESTRADOR</span><span class="s">entende a necessidade e escolhe a rota</span></a>
+    <div class="arrow"></div>
+
+    <a class="node cd" href="#c-entender"><span class="k">código · motor</span><span class="t">ENTENDER</span><span class="s">perfil + alertas do extrato</span></a>
+    <div class="arrow"></div>
+
+    <div class="branch" style="padding-top:0">
+      <span class="bar top"></span>
+      <!-- DECISÃO -->
+      <div class="col">
+        <span class="stem"></span>
+        <span class="route">Decisão</span>
+        <p class="route-q">"Posso comprar um carro de R$ 80 mil?"</p>
+        <a class="node cd small" href="#c-relevante"><span class="k">código · regra</span><span class="t">Decisão relevante?</span><span class="s">meta, parcelado, ≥ 20% da renda ou saldo sem folga</span></a>
+        <div class="arrow lbl"><span class="al">sim</span></div>
+        <a class="node ag small opt" href="#p-propor"><span class="k">agente gemini</span><span class="t">PROPOR</span><span class="s">desenha 2 ou 3 alternativas (só parâmetros)</span></a>
+        <p class="note-inline">se não for relevante, simula só o pedido</p>
+        <div class="arrow"></div>
+        <a class="node cd small" href="#c-simular"><span class="k">código · motor</span><span class="t">SIMULAR</span><span class="s">saldo dia a dia de cada cenário, até 5 anos</span></a>
+        <div class="arrow"></div>
+        <a class="node cd small" href="#c-comparar"><span class="k">código · motor</span><span class="t">COMPARAR</span><span class="s">escolhe o cenário mais saudável</span></a>
+        <div class="arrow"></div>
+        <a class="node cd small" href="#c-ideias"><span class="k">código · motor</span><span class="t">IDEIAS</span><span class="s">ações do cliente com efeito simulado</span></a>
+        <div class="arrow"></div>
+        <a class="node ag small" href="#p-orientar"><span class="k">agente gemini</span><span class="t">ORIENTAR</span><span class="s">recomenda + ideias + devolve a decisão</span></a>
+        <span class="endstem"></span>
+      </div>
+      <!-- DIAGNÓSTICO -->
+      <div class="col">
+        <span class="stem"></span>
+        <span class="route">Diagnóstico</span>
+        <p class="route-q">"Como estou? Vou ficar no vermelho?"</p>
+        <a class="node cd small" href="#c-projetar"><span class="k">código · motor</span><span class="t">Projeção de 90 dias</span><span class="s">saldo futuro com salário, contas e parcelas</span></a>
+        <div class="arrow"></div>
+        <a class="node cd small" href="#c-ideias"><span class="k">código · motor</span><span class="t">IDEIAS</span><span class="s">o que fazer para aliviar ou aproveitar a sobra</span></a>
+        <div class="arrow"></div>
+        <a class="node ag small" href="#p-orientar"><span class="k">agente gemini</span><span class="t">ORIENTAR</span><span class="s">diagnóstico + recomendação</span></a>
+        <span class="endstem"></span>
+      </div>
+      <!-- EDUCAR -->
+      <div class="col">
+        <span class="stem"></span>
+        <span class="route">Educar</span>
+        <p class="route-q">"O que é CDI? Como funcionam os juros?"</p>
+        <a class="node ag small" href="#p-educar"><span class="k">agente gemini</span><span class="t">EDUCAR</span><span class="s">micro-lição ligada ao caso do cliente</span></a>
+        <span class="endstem"></span>
+      </div>
+      <!-- ACOMPANHAR -->
+      <div class="col">
+        <span class="stem"></span>
+        <span class="route">Acompanhar</span>
+        <p class="route-q">"Quero a opção B."</p>
+        <a class="node cd small" href="#c-plano"><span class="k">código · motor</span><span class="t">PLANO</span><span class="s">marcos e lembretes do cenário escolhido</span></a>
+        <div class="arrow"></div>
+        <a class="node cd small" href="#c-ideias"><span class="k">código · motor</span><span class="t">IDEIAS</span><span class="s">como deixar o plano mais seguro</span></a>
+        <div class="arrow"></div>
+        <a class="node ag small" href="#p-orientar"><span class="k">agente gemini</span><span class="t">ORIENTAR</span><span class="s">confirma e mostra o plano</span></a>
+        <span class="endstem"></span>
+      </div>
+      <span class="bar bottom"></span>
+    </div>
+    <div class="merge-arrow"></div>
+
+    <a class="node ag" href="#p-guardiao"><span class="k">agente gemini · sempre</span><span class="t">GUARDIÃO</span><span class="s">revisa a resposta pela Res. Conjunta nº 8</span></a>
+    <div class="arrow"></div>
+
+    <a class="node io" href="#c-api"><span class="k">saída</span><span class="t">Resposta ao cliente</span><span class="s">texto + dados_tela (gráficos) + trilha</span></a>
+    <div class="loop">↺ <span><b>Cliente decide</b> ("quero a B") → nova mensagem → rota <b>Acompanhar</b></span></div>
+
+  </div>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="stats">
+    <div class="stat"><b>5</b><span>agentes Gemini: orquestrador, propor, orientar, educar e guardião</span></div>
+    <div class="stat"><b>7</b><span>etapas em código: guard, entender, relevância, simular, comparar, ideias e plano</span></div>
+    <div class="stat"><b>3 a 4</b><span>chamadas ao Gemini por mensagem (antes eram cerca de 6)</span></div>
+    <div class="stat"><b>0</b><span>números calculados pelo LLM</span></div>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="sec-head">
+    <h2>Chamadas ao Gemini por rota</h2>
+  </div>
+  <div class="tbl"><table>
+    <thead><tr><th>Rota</th><th>Caminho</th><th>Chamadas</th></tr></thead>
+    <tbody>
+      <tr><td>Bloqueada no guard</td><td>resposta pronta</td><td class="n">0</td></tr>
+      <tr><td>Decisão</td><td>orquestrador → propor → orientar → guardião</td><td class="n">4</td></tr>
+      <tr><td>Decisão pequena ou sem valor</td><td>orquestrador → orientar → guardião</td><td class="n">3</td></tr>
+      <tr><td>Diagnóstico</td><td>orquestrador → orientar → guardião</td><td class="n">3</td></tr>
+      <tr><td>Educar</td><td>orquestrador → educar → guardião</td><td class="n">3</td></tr>
+      <tr><td>Acompanhar</td><td>orquestrador → orientar → guardião</td><td class="n">3</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="sec">
+  <div class="sec-head">
+    <h2>Agentes Gemini e seus prompts</h2>
+    <p>Todos rodam no Gemini 3.8 Flash, sem histórico bruto (<code>include_contents="none"</code>): cada um recebe no prompt só o que precisa, vindo do estado da sessão. Arquivo: <code>app/agents.py</code>.</p>
+  </div>
+  <div class="cards">
+
+    <article class="card" id="p-orquestrador">
+      <div class="top"><h3>ORQUESTRADOR</h3><span class="tag ag">Agente Gemini</span></div>
+      <div class="meta"><span>temperatura 0</span><span>output_schema Roteamento</span><span>→ roteamento</span></div>
+      <div class="prompt"><span class="pl">Prompt resumido</span>"Entenda o que o cliente precisa e escolha a rota: <b>decisão</b> (comprar, parcelar, financiar, meta com valor, ou variação de uma decisão anterior), <b>diagnóstico</b> (como estou, vou ficar no vermelho, saudações), <b>educar</b> (pergunta conceitual) ou <b>acompanhar</b> (escolheu um cenário). Na decisão, extraia só o que o cliente disse: valor, parcelas, entrada, espera, taxa e prazo. Nunca invente. Você não responde ao cliente."</div>
+      <p class="io-line">Recebe: <code>pergunta</code>, <code>historico</code> (últimos 4 turnos), cenários pendentes e data de referência.</p>
+    </article>
+
+    <article class="card" id="p-propor">
+      <div class="top"><h3>PROPOR</h3><span class="tag ag">Agente Gemini</span></div>
+      <div class="meta"><span>temperatura 0,4</span><span>output_schema Proposta</span><span>→ proposta</span></div>
+      <div class="prompt"><span class="pl">Prompt resumido</span>"O cenário A (o que o cliente pediu) já foi simulado. Proponha de 2 a 3 alternativas viáveis e diferentes entre si, escolhendo entre <b>compra</b>, <b>financiamento</b>, <b>juntar entrada</b>, <b>consórcio</b> e <b>poupar</b>. Se o pedido aperta o saldo, prefira caminhos que aliviem o fluxo. Use números que já existem no contexto (sobra mensal, parcelas que terminam). Não calcule resultados: o motor simula."</div>
+      <p class="io-line">Recebe: <code>necessidade_json</code>, prévia do cenário A e <code>contexto_json</code>. Só roda se a decisão for relevante.</p>
+    </article>
+
+    <article class="card" id="p-orientar">
+      <div class="top"><h3>ORIENTAR</h3><span class="tag ag">Agente Gemini</span></div>
+      <div class="meta"><span>temperatura 0,5</span><span>6 modos</span><span>→ rascunho</span></div>
+      <div class="prompt"><span class="pl">Prompt resumido</span>"Ajude o cliente a DECIDIR: explique, <b>recomende um caminho</b> e dê <b>ideias práticas</b> para resolver o problema, mas a decisão é dele. Na decisão: resposta direta → impacto com datas → cenários lado a lado → 'Minha recomendação' → 'Ideias para resolver' → micro-lição → 'Qual caminho faz mais sentido: A, B ou C?'. Até 230 palavras, linguagem simples, sem produto do banco, só números dos dados verificados."</div>
+      <p class="io-line">Modos: decisão, decisão simples, falta informação, diagnóstico, acompanhar e escolher. Recebe <code>dados_verificados</code>.</p>
+    </article>
+
+    <article class="card" id="p-educar">
+      <div class="top"><h3>EDUCAR</h3><span class="tag ag">Agente Gemini</span></div>
+      <div class="meta"><span>temperatura 0,4</span><span>→ rascunho</span></div>
+      <div class="prompt"><span class="pl">Prompt resumido</span>"Explique o conceito de forma simples, em até 120 palavras, com um exemplo ligado à situação do cliente quando fizer sentido. Termine perguntando se ele quer simular uma decisão relacionada. Sem produto do banco e sem números inventados."</div>
+      <p class="io-line">Recebe: <code>pergunta</code> e o resumo do perfil.</p>
+    </article>
+
+    <article class="card" id="p-guardiao">
+      <div class="top"><h3>GUARDIÃO</h3><span class="tag ag">Agente Gemini · sempre</span></div>
+      <div class="meta"><span>temperatura 0</span><span>→ resposta_final</span></div>
+      <div class="prompt"><span class="pl">Prompt resumido</span>"Revise a resposta pela Res. Conjunta nº 8. Ela precisa ser educativa e sem oferta comercial; adequada à situação; clara sobre custo total; deixar a decisão com o cliente; usar só números verificados; marcar taxas não informadas como hipótese; tratar ideias como ações do cliente; linguagem simples; sem promessa de rentabilidade. Se estiver certa, devolva igual; se não, corrija só o necessário."</div>
+      <p class="io-line">Recebe: <code>pergunta</code>, <code>dados_verificados</code> e <code>rascunho</code>.</p>
+    </article>
+
+  </div>
+</section>
+
+<section class="sec">
+  <div class="sec-head">
+    <h2>Motores em código</h2>
+    <p>Etapas determinísticas: mesma entrada, mesma saída, sem custo de LLM. Ficam em <code>app/engine.py</code>, <code>app/cenarios.py</code> e <code>app/guard_entrada.py</code>.</p>
+  </div>
+  <div class="cards">
+
+    <article class="card" id="c-guard">
+      <div class="top"><h3>Guard de entrada</h3><span class="tag cd">Código</span></div>
+      <span class="file">guard_entrada.avaliar()</span>
+      <ul>
+        <li>Regex sobre o texto normalizado, em cerca de 0 ms.</li>
+        <li>Bloqueia 4 casos: <b>prompt injection</b>, <b>dados sensíveis</b> (CPF, cartão, senha), <b>ilícito</b> e <b>fora do escopo</b>.</li>
+        <li>Quando bloqueia, devolve uma resposta pronta e o Gemini não é chamado.</li>
+      </ul>
+    </article>
+
+    <article class="card" id="c-entender">
+      <div class="top"><h3>ENTENDER</h3><span class="tag cd">Código</span></div>
+      <span class="file">engine.perfil() · engine.alertas()</span>
+      <ul>
+        <li>Lê o extrato no BigQuery e detecta <b>renda</b>, <b>contas fixas com dia de vencimento</b>, <b>parcelas em aberto</b> e quando terminam.</li>
+        <li>Calcula saldo, sobra mensal, % da renda comprometida e dias no negativo.</li>
+        <li>Alertas proativos: aperto, mês apertado, parcela terminando e sobra para reserva.</li>
+      </ul>
+    </article>
+
+    <article class="card" id="c-relevante">
+      <div class="top"><h3>Decisão relevante?</h3><span class="tag cd">Código · regra</span></div>
+      <span class="file">cenarios.decisao_relevante()</span>
+      <ul>
+        <li>Vale comparar caminhos quando é uma <b>meta</b>, é <b>parcelado</b>, custa <b>20% ou mais da renda</b> ou deixa o saldo sem folga.</li>
+        <li>Se não, o PROPOR não roda e o ITA responde direto ("cabe tranquilo").</li>
+        <li>Sem valor informado, o ORIENTAR só pergunta o valor.</li>
+      </ul>
+    </article>
+
+    <article class="card" id="c-simular">
+      <div class="top"><h3>SIMULAR</h3><span class="tag cd">Código · motor</span></div>
+      <span class="file">cenarios.fluxos() · engine.projetar()</span>
+      <ul>
+        <li>Transforma cada cenário em lançamentos futuros e projeta o saldo <b>dia a dia</b>, com salário, contas, parcelas e gasto variável médio.</li>
+        <li>Tipos: <b>compra</b> (à vista, parcelada, entrada, espera, valor menor), <b>financiamento</b>, <b>juntar entrada</b>, <b>consórcio</b> e <b>poupar</b>.</li>
+        <li>Horizonte de 90 dias a 5 anos. Taxa não informada: 2% a.m. no financiamento e 15% no consórcio, sempre marcadas como hipótese.</li>
+      </ul>
+    </article>
+
+    <article class="card" id="c-comparar">
+      <div class="top"><h3>COMPARAR</h3><span class="tag cd">Código · motor</span></div>
+      <span class="file">cenarios.comparar()</span>
+      <ul>
+        <li>Mede cada cenário: parcela ou aporte, custo total, juros, dias no negativo, menor saldo, % da renda e quando o cliente tem o bem.</li>
+        <li><b>Recomenda</b> o cenário sem dia negativo e com folga, com menos juros e dentro do prazo desejado; se nenhum evita o negativo, o de menos dias no negativo.</li>
+        <li>Destaques: mais seguro, mais barato e mais rápido.</li>
+      </ul>
+    </article>
+
+    <article class="card" id="c-ideias">
+      <div class="top"><h3>IDEIAS</h3><span class="tag cd">Código · motor</span></div>
+      <span class="file">cenarios.ideias()</span>
+      <ul>
+        <li>Ações do próprio cliente, cada uma <b>simulada</b> sobre o cenário recomendado.</li>
+        <li>Rever assinaturas · cortar 10% do dia a dia · mudar o vencimento de uma conta grande para depois do salário · fazer tudo junto.</li>
+        <li>Aproveitar parcelas que terminam · separar um valor no dia do salário para a reserva.</li>
+      </ul>
+    </article>
+
+    <article class="card" id="c-projetar">
+      <div class="top"><h3>Projeção de 90 dias</h3><span class="tag cd">Código · motor</span></div>
+      <span class="file">engine.projetar()</span>
+      <ul>
+        <li>O "gêmeo digital" do fluxo de caixa: saldo previsto em cada um dos próximos 90 dias.</li>
+        <li>Aponta o primeiro dia negativo, o menor saldo e o evento que causa o aperto.</li>
+      </ul>
+    </article>
+
+    <article class="card" id="c-plano">
+      <div class="top"><h3>PLANO</h3><span class="tag cd">Código · motor</span></div>
+      <span class="file">cenarios.plano()</span>
+      <ul>
+        <li>Linha do tempo do cenário escolhido: dia mais apertado, quando o cliente tem o bem, última parcela e fim das parcelas atuais.</li>
+        <li>Lembretes: "todo dia 15, separar R$ X" e "todo dia 10, parcela de R$ Y".</li>
+      </ul>
+    </article>
+
+    <article class="card" id="c-api">
+      <div class="top"><h3>API /chat</h3><span class="tag cd">Código</span></div>
+      <span class="file">app/main.py</span>
+      <ul>
+        <li>Entrada: <code>id_usuario</code>, <code>mensagem</code> e <code>session_id</code>.</li>
+        <li>Saída: <code>resposta</code>, <code>rota</code>, <code>dados_tela</code> (séries para os gráficos) e <code>trilha</code> (cada passo, de agente ou de código, para o painel "por dentro").</li>
+      </ul>
+    </article>
+
+  </div>
+</section>
+
+<footer>ITA · Google ADK 2.10 + Gemini 3.8 Flash + BigQuery + Cloud Run · código em app/agents.py, app/cenarios.py, app/engine.py</footer>
+</div>
+</body>
+</html>

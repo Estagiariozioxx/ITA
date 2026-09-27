@@ -1,0 +1,1123 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ITA no WhatsApp</title>
+<style>
+:root{--page:#2A2A33;--ink:#ECECF1;--accent:#FF6200;--navy:#061B67;--wa-bg:#EFE7DE;--wa:#1DAA61;--in:#FFFFFF;--out:#D9FDD3;--text:#111B21;--meta:#667781;--line:#E9EDEF;--green:#00A884;--blue:#53BDEB;--red:#B42318;--notice:#FFEECD}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+.view{flex:1;min-height:0;min-width:0;display:flex;flex-direction:column}
+/* tela de bloqueio (Cenário 2) */
+.screen.modo-bloqueio{background:radial-gradient(120% 80% at 20% 0%,#3B4C8C 0%,#1B2447 45%,#0E1226 100%)}
+.screen.modo-bloqueio .sb{background:transparent;color:#fff}
+.screen.modo-bloqueio .bat{border-color:#fff}.screen.modo-bloqueio .bat::after{background:#fff}
+#bloqueio{color:#fff;align-items:center;padding:10px 12px 0;position:relative}
+.lk-cad{margin-top:4px;opacity:.9}
+.lk-data{font-size:17px;font-weight:500;margin-top:8px;opacity:.95;text-transform:capitalize}
+.lk-hora{font-size:78px;font-weight:700;line-height:1;letter-spacing:-2px;margin-top:2px}
+.lk-notifs{width:100%;margin-top:26px;display:flex;flex-direction:column;gap:8px}
+.lk-n{display:flex;gap:10px;align-items:flex-start;width:100%;text-align:left;border:0;cursor:pointer;color:#111;
+  background:#F4F4F6E8;backdrop-filter:blur(14px);border-radius:20px;padding:12px 13px;box-shadow:0 6px 20px #0005;animation:chega .45s cubic-bezier(.2,.9,.3,1.2)}
+@keyframes chega{from{transform:translateY(-30px) scale(.96);opacity:0}to{transform:none;opacity:1}}
+.lk-n .ic-wa{width:38px;height:38px;border-radius:10px;background:#25D366;display:grid;place-items:center;flex:none}
+.lk-n .tx{flex:1;min-width:0;font-size:14px;line-height:1.35}
+.lk-n .cab{display:flex;justify-content:space-between;font-size:12px;color:#666;margin-bottom:1px}
+.lk-n .tx b{display:block;font-size:14.5px}
+.lk-n .ms{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;color:#222}
+.lk-rodape{margin-top:auto;width:100%;display:flex;justify-content:space-between;align-items:center;padding:0 18px 10px}
+.lk-bt{width:46px;height:46px;border-radius:50%;background:#FFFFFF26;backdrop-filter:blur(8px);display:grid;place-items:center}
+.lk-dica{font-size:12.5px;opacity:.85}
+.lk-barra{width:130px;height:5px;border-radius:3px;background:#fff;margin:4px 0 10px;opacity:.9}
+/* lista de conversas (tela inicial do WhatsApp) */
+#lista{position:relative;background:#fff}
+.lhead{display:flex;align-items:center;justify-content:space-between;padding:6px 8px 2px 18px;background:#fff}
+.lhead .lt{font-size:25px;font-weight:700;color:var(--wa);letter-spacing:-.2px}
+.lhead .ics{display:flex;gap:2px;color:#111B21}
+.lhead .ic{width:40px;height:40px;border-radius:50%}
+.lhead .ic:hover{background:#F0F2F5}
+.search{margin:6px 16px 10px;background:#F0F2F5;border-radius:24px;height:44px;padding:0 16px;color:#667781;font-size:15.5px;display:flex;gap:14px;align-items:center}
+.filters{display:flex;gap:8px;padding:0 16px 8px;overflow-x:auto;scrollbar-width:none}
+.filters::-webkit-scrollbar{display:none}
+.filters span{flex:none;border:1px solid #E9EDEF;color:#54656F;font-size:14px;padding:6px 13px;border-radius:18px;white-space:nowrap;background:#fff}
+.filters span.on{background:#D9FDD3;border-color:#D9FDD3;color:#0A5C36;font-weight:500}
+.filters .mais{width:34px;padding:6px 0;text-align:center;font-size:17px;line-height:1}
+.arq{display:flex;align-items:center;gap:26px;padding:10px 20px 10px 30px;color:#111B21;font-size:16px}
+.arq svg{color:#1DAA61;flex:none}
+.chats{flex:1;min-height:0;overflow-y:auto;background:#fff}
+.citem{display:flex;gap:14px;align-items:center;width:100%;border:0;background:#fff;text-align:left;padding:10px 16px;cursor:pointer;color:inherit}
+.citem:hover{background:#F5F6F6}
+.citem .av{width:52px;height:52px;font-size:15px}
+.citem .ci{flex:1;min-width:0}
+.citem .top,.citem .low{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.citem .low{margin-top:2px}
+.citem .nm{font-size:16.5px;font-weight:500;display:flex;align-items:center;gap:4px;min-width:0}
+.citem .tm{font-size:12px;color:#667781;flex:none}
+.citem .tm.new{color:var(--wa);font-weight:600}
+.citem .pv{font-size:14.5px;color:#667781;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.citem.unread .pv{color:#111B21;font-weight:500}
+.badge{min-width:21px;height:21px;border-radius:11px;background:var(--wa);color:#fff;font-size:12px;font-weight:700;display:grid;place-items:center;padding:0 6px;flex:none}
+.crypt{text-align:center;font-size:12px;color:#667781;padding:18px 24px}
+.crypt b{color:var(--wa);font-weight:500}
+.fabs{position:absolute;right:16px;bottom:92px;display:flex;flex-direction:column;align-items:center;gap:16px;z-index:2}
+.fab-ai{width:40px;height:40px;border-radius:12px;background:#fff;box-shadow:0 2px 6px #0b141a33;display:grid;place-items:center;border:0}
+.fab-ai i{width:20px;height:20px;border-radius:50%;background:conic-gradient(#0668E1,#8B3DFF,#00C2FF,#0668E1);-webkit-mask:radial-gradient(circle,transparent 5px,#000 5.5px);mask:radial-gradient(circle,transparent 5px,#000 5.5px)}
+.fab{width:56px;height:56px;border-radius:16px;background:#1DAA61;color:#fff;box-shadow:0 3px 8px #0b141a40;display:grid;place-items:center;border:0;cursor:pointer}
+.tabs{flex:none;display:flex;justify-content:space-around;padding:8px 4px 20px;background:#fff;border-top:1px solid #E9EDEF;font-size:12.5px;color:#54656F}
+.tabs span{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1}
+.tabs .pill{width:60px;height:32px;border-radius:16px;display:grid;place-items:center;position:relative}
+.tabs .on{color:#111B21;font-weight:600}
+.tabs .on .pill{background:#D9FDD3;color:#0A5C36}
+.tabs .dot{position:absolute;top:3px;right:14px;min-width:17px;height:17px;border-radius:9px;background:var(--wa);color:#fff;font-size:10.5px;font-weight:700;display:grid;place-items:center;padding:0 4px}
+body{margin:0;min-height:100vh;background:var(--page);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+button,input,select{font:inherit;color:inherit}
+.wrap{max-width:1120px;min-height:100vh;min-height:100dvh;margin:auto;padding:16px;display:grid;grid-template-columns:auto 1fr;gap:32px;align-items:start}
+/* o celular fica "suspenso": acompanha a rolagem enquanto o painel da demo desce */
+.wrap>.phone{position:sticky;top:16px;align-self:start}
+
+/* celular: a altura acompanha a janela (sem rolar a página) e a largura segue a proporção do aparelho */
+.phone{--h:min(820px,calc(100vh - 32px));--h:min(820px,calc(100dvh - 32px));position:relative;flex:none;height:var(--h);width:calc(var(--h) * 390 / 820);min-width:0;border-radius:46px;background:#000;padding:10px;box-shadow:0 30px 80px #0008,inset 0 0 0 2px #333}
+.screen{position:relative;width:100%;height:100%;border-radius:37px;overflow:hidden;background:var(--wa-bg);display:flex;flex-direction:column;color:var(--text)}
+.island{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:26%;height:30px;border-radius:20px;background:#000;z-index:5}
+.sb{height:46px;flex:none;display:flex;align-items:flex-end;justify-content:space-between;padding:0 24px 6px;font-size:14px;font-weight:600;background:#fff}
+.sb .r{display:flex;gap:6px;align-items:center;font-size:12px}
+.bat{width:24px;height:12px;border:1.5px solid #111;border-radius:3px;position:relative;display:inline-block}
+.bat::after{content:"";position:absolute;left:1px;top:1px;bottom:1px;width:62%;background:#111;border-radius:1px}
+
+/* cabeçalho do WhatsApp */
+.head{flex:none;display:flex;align-items:center;gap:8px;padding:6px 10px 8px;background:#fff;border-bottom:1px solid var(--line)}
+.back{border:0;background:none;font-size:26px;line-height:1;color:var(--text);padding:0 4px;cursor:pointer}
+.av{width:38px;height:38px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:800;font-size:13px;letter-spacing:.3px;flex:none}
+.who{flex:1;min-width:0}
+.who .n{font-weight:600;font-size:16px;display:flex;align-items:center;gap:4px}
+.who .n svg{flex:none}
+.who .s{font-size:12.5px;color:var(--meta);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.who .s.typing{color:var(--green)}
+.ic{border:0;background:none;padding:6px;cursor:pointer;color:var(--text);display:grid;place-items:center}
+
+/* conversa */
+.chat{flex:1;min-height:0;overflow-y:auto;padding:10px 12px 14px;background-color:var(--wa-bg);background-image:radial-gradient(#0000000b 1px,transparent 1.2px),radial-gradient(#0000000b 1px,transparent 1.2px);background-size:22px 22px;background-position:0 0,11px 11px;scroll-behavior:smooth}
+.day{text-align:center;margin:6px 0 10px}
+.day span{background:#fff;color:var(--meta);font-size:12px;padding:5px 12px;border-radius:8px;box-shadow:0 1px .5px #0b141a21}
+.notice{background:var(--notice);color:#54656f;font-size:12.3px;line-height:1.4;text-align:center;padding:8px 12px;border-radius:8px;margin:0 18px 12px;box-shadow:0 1px .5px #0b141a21}
+.row{display:flex;margin:2px 0}
+.row.me{justify-content:flex-end}
+.row.first{margin-top:8px}
+.bub{position:relative;max-width:84%;padding:6px 8px 6px 9px;border-radius:8px;font-size:14.2px;line-height:1.38;box-shadow:0 1px .5px #0b141a21;word-wrap:break-word}
+.bot .bub{background:var(--in)}
+.me .bub{background:var(--out)}
+.first.bot .bub{border-top-left-radius:0}
+.first.me .bub{border-top-right-radius:0}
+.first.bot .bub::before,.first.me .bub::before{content:"";position:absolute;top:0;width:8px;height:13px}
+.first.bot .bub::before{left:-8px;background:linear-gradient(to bottom left,var(--in) 50%,transparent 50%)}
+.first.me .bub::before{right:-8px;background:linear-gradient(to bottom right,var(--out) 50%,transparent 50%)}
+.meta{float:right;margin:6px 0 -4px 10px;font-size:11px;color:var(--meta);display:inline-flex;align-items:center;gap:3px;white-space:nowrap}
+.tick{color:#8696a0}.tick.read{color:var(--blue)}
+.bub b{font-weight:600}
+.bub .gap{height:8px}
+.bub .h{font-weight:600;margin:2px 0}
+.bub .li{display:flex;gap:7px;margin:3px 0 3px 2px}
+.bub .li .bl{flex:none;color:var(--meta);min-width:10px}
+.bub.oferta{background:#FFF7F0;border-left:3px solid var(--accent)}
+.first.bot .bub.oferta::before{background:linear-gradient(to bottom left,#FFF7F0 50%,transparent 50%)}
+.bub small{color:var(--meta)}
+.foot{color:var(--meta);font-size:12.5px;margin-top:4px}
+.card{margin:-2px -4px 6px;border-radius:6px;overflow:hidden;background:#f7f8fa;border:1px solid var(--line)}
+.card .ct{padding:8px 10px 2px;font-size:12.5px;font-weight:600;color:#3b4a54}
+.card svg{display:block;width:100%;height:auto}
+.legend{display:flex;gap:10px;flex-wrap:wrap;font-size:11px;color:var(--meta);padding:2px 10px 8px}
+/* mensagem de imagem (gráfico gerado pelo backend) */
+.bub.foto{padding:3px}
+.foto-bt{display:block;position:relative;border:0;padding:0;background:none;cursor:zoom-in;border-radius:6px;overflow:hidden;width:250px;max-width:100%}
+.foto-bt img{display:block;width:100%;height:auto;background:#fff}
+.foto-bt .meta{position:absolute;right:0;bottom:0;float:none;margin:0;padding:14px 8px 4px 20px;color:#fff;
+  background:linear-gradient(to top left,#0009,transparent 70%);border-radius:0 0 6px 0}
+/* visor em tela cheia (como o do WhatsApp) */
+.visor{position:fixed;inset:0;z-index:100;background:#0B141AF2;display:flex;flex-direction:column;animation:abre .18s ease-out}
+@keyframes abre{from{opacity:0}to{opacity:1}}
+.visor-top{display:flex;align-items:center;gap:12px;padding:12px 16px;color:#E9EDEF}
+.visor-top .av{width:36px;height:36px;font-size:12px}
+.visor-top .vt{flex:1;min-width:0}
+.visor-top .vt b{display:block;font-size:15px}
+.visor-top .vt small{color:#8696A0;font-size:12.5px}
+.visor-top button{border:0;background:none;color:#E9EDEF;font-size:26px;cursor:pointer;padding:4px 10px;line-height:1}
+.visor-img{flex:1;min-height:0;display:grid;place-items:center;padding:8px 16px 28px}
+.visor-img img{max-width:min(1100px,96vw);max-height:100%;border-radius:8px;box-shadow:0 10px 40px #0008;background:#fff}
+.barras{padding:6px 10px 4px;display:grid;gap:8px}
+.br .bn{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:3px;gap:8px}
+.br .bn span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.br .bt{height:8px;border-radius:4px;background:#E9EDEF;position:relative}
+.br .bt i{position:absolute;left:0;top:0;bottom:0;border-radius:4px;background:#9AA6AD}
+.br .bt i.mais{background:#FF6200}
+.br .bt em{position:absolute;top:-3px;bottom:-3px;width:2px;background:#061B67}
+.legend i{display:inline-block;width:10px;height:3px;border-radius:2px;vertical-align:middle;margin-right:4px}
+.kv{display:grid;grid-template-columns:1fr auto;gap:3px 12px;font-size:13px;margin:6px 0 2px}
+.kv span:nth-child(even){text-align:right;font-weight:600}
+.neg{color:var(--red)}.pos{color:var(--green)}
+.opt{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-top:1px solid var(--line);font-size:13px}
+.opt:first-child{border-top:0}
+.opt .rec{color:var(--green);font-weight:700}
+.acts{margin:4px -9px -6px -9px;border-top:1px solid var(--line)}
+.act{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;border:0;background:none;color:#027EB5;font-size:14.2px;font-weight:500;padding:10px;cursor:pointer}
+.act+.act{border-top:1px solid var(--line)}
+.act:disabled{color:#9aa6ad;cursor:default}
+.dots{display:inline-flex;gap:3px;padding:4px 2px}
+.dots i{width:7px;height:7px;border-radius:50%;background:#9aa6ad;animation:b 1.2s infinite}
+.dots i:nth-child(2){animation-delay:.2s}.dots i:nth-child(3){animation-delay:.4s}
+@keyframes b{0%,60%,100%{opacity:.35;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
+.slow{font-size:12px;color:var(--meta);margin-top:2px}
+
+/* compositor */
+.comp{flex:none;display:flex;align-items:flex-end;gap:6px;padding:6px 8px 22px;background:transparent}
+.inbox{flex:1;display:flex;align-items:center;gap:4px;background:#fff;border-radius:24px;padding:4px 6px 4px 10px;box-shadow:0 1px .5px #0b141a21}
+.inbox input{flex:1;border:0;outline:0;background:none;font-size:15px;padding:8px 2px;min-width:0}
+.send{width:46px;height:46px;flex:none;border:0;border-radius:50%;background:var(--green);color:#fff;display:grid;place-items:center;cursor:pointer}
+.send:disabled{opacity:.6;cursor:default}
+
+/* ficha de lista (bottom sheet) */
+.scrim{position:absolute;inset:0;background:#0006;z-index:10;display:flex;align-items:flex-end}
+.sheet{width:100%;background:#fff;border-radius:16px 16px 0 0;padding:6px 0 24px;animation:up .2s ease-out}
+@keyframes up{from{transform:translateY(40%);opacity:.4}to{transform:none;opacity:1}}
+.sheet .grab{width:36px;height:4px;border-radius:2px;background:#d1d7db;margin:6px auto 8px}
+.sheet .sh{text-align:center;font-weight:600;padding:4px 16px 10px;border-bottom:1px solid var(--line)}
+.lrow{display:flex;gap:12px;align-items:center;width:100%;text-align:left;border:0;background:none;padding:12px 18px;cursor:pointer}
+.lrow:hover{background:#f5f6f6}
+.lrow .tt{font-size:15px}.lrow .dd{font-size:12.5px;color:var(--meta);margin-top:2px}
+.lrow .rd{margin-left:auto;width:20px;height:20px;border-radius:50%;border:2px solid #aebac1;flex:none}
+
+/* formulário de simulação/contratação dentro do WhatsApp (estilo WhatsApp Flows) */
+.sheet.fluxo{height:92%;display:flex;flex-direction:column;padding:0;border-radius:18px 18px 0 0}
+.fx-head{display:flex;align-items:center;gap:10px;padding:14px 16px 10px;border-bottom:1px solid var(--line)}
+.fx-head button{border:0;background:none;font-size:22px;line-height:1;cursor:pointer;color:#54656f;padding:2px 6px}
+.fx-head .ft{flex:1;text-align:center;font-weight:600;font-size:16px;margin-right:30px}
+.fx-body{flex:1;min-height:0;overflow-y:auto;padding:16px 18px}
+.fx-body label{display:block;font-size:13px;color:#54656f;margin:14px 0 6px}
+.fx-body input[type=text]{width:100%;border:1px solid #d1d7db;border-radius:10px;padding:12px;font-size:16px;outline:0}
+.fx-body input[type=text]:focus{border-color:var(--green)}
+.fx-body input[type=range]{width:100%;accent-color:var(--green)}
+.fx-prazo{display:flex;justify-content:space-between;font-size:13px;color:#54656f}
+.fx-prazo b{color:var(--text);font-size:15px}
+.fx-prod{display:flex;align-items:center;gap:10px;background:#FFF7F0;border:1px solid #FFD9BF;border-radius:12px;padding:10px 12px}
+.fx-prod .lg{width:36px;height:36px;border-radius:9px;background:#EC7000;color:#fff;font-weight:800;font-size:12px;display:grid;place-items:center;flex:none}
+.fx-prod small{display:block;color:#667781}
+.fx-big{text-align:center;margin:14px 0 6px}
+.fx-big small{display:block;color:#667781;font-size:13px}
+.fx-big b{font-size:32px;letter-spacing:-.5px}
+.fx-kv{display:grid;grid-template-columns:1fr auto;gap:8px 12px;font-size:14px;background:#F7F8FA;border-radius:12px;padding:12px 14px;margin-top:10px}
+.fx-kv span:nth-child(even){text-align:right;font-weight:600}
+.fx-barra{height:8px;border-radius:4px;background:#E9EDEF;overflow:hidden;margin:6px 0 2px;position:relative}
+.fx-barra i{position:absolute;left:0;top:0;bottom:0;background:var(--green)}
+.fx-barra i.alto{background:var(--red)}
+.fx-barra em{position:absolute;top:-2px;bottom:-2px;width:2px;background:#111;left:35%}
+.fx-msg{border-radius:12px;padding:10px 12px;font-size:13.5px;margin-top:12px;line-height:1.4}
+.fx-msg.ok{background:#E7F8EE;color:#0A5C36}.fx-msg.ruim{background:#FDECEA;color:#8A1C12}
+.fx-obs{font-size:12px;color:#667781;margin-top:10px;line-height:1.45}
+.fx-aceite{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;margin-top:14px;line-height:1.4}
+.fx-aceite input{width:20px;height:20px;accent-color:var(--green);flex:none;margin-top:1px}
+.fx-foot{padding:12px 16px 22px;border-top:1px solid var(--line);display:grid;gap:8px}
+.fx-btn{border:0;border-radius:24px;padding:13px;font-size:15.5px;font-weight:600;cursor:pointer;background:var(--green);color:#fff}
+.fx-btn:disabled{opacity:.45;cursor:default}
+.fx-btn.sec{background:#fff;color:var(--green);border:1px solid #d1d7db}
+.fx-seguro{text-align:center;font-size:11.5px;color:#8696a0}
+/* autenticação simulada (biometria ou aprovação no app, nunca senha/código na conversa) */
+.fx-auth{display:grid;gap:10px;margin-top:14px}
+.fx-op{display:flex;gap:12px;align-items:center;text-align:left;border:1px solid #d1d7db;background:#fff;border-radius:14px;padding:13px;cursor:pointer;width:100%}
+.fx-op:hover{border-color:var(--green)}
+.fx-op .oi{width:42px;height:42px;border-radius:12px;background:#E7F8EE;color:var(--green);display:grid;place-items:center;flex:none}
+.fx-op small{display:block;color:#667781;font-size:12.5px;margin-top:2px}
+.fx-bio{width:96px;height:96px;border-radius:50%;margin:26px auto 10px;display:grid;place-items:center;color:var(--green);background:#E7F8EE;position:relative}
+.fx-bio::after{content:"";position:absolute;inset:-8px;border-radius:50%;border:3px solid var(--green);opacity:.25;animation:bio 1.2s ease-out infinite}
+.fx-bio.ok::after{animation:none;opacity:0}
+.fx-bio.ok{background:var(--green);color:#fff}
+@keyframes bio{0%{transform:scale(.85);opacity:.5}100%{transform:scale(1.15);opacity:0}}
+.fx-centro{text-align:center;font-size:14.5px;line-height:1.45}
+.fx-centro small{display:block;color:#667781;font-size:12.5px;margin-top:4px}
+.fx-app{margin:16px auto 0;max-width:280px;border-radius:16px;overflow:hidden;box-shadow:0 6px 20px #0002;border:1px solid #eee}
+.fx-app .ah{background:#EC7000;color:#fff;padding:9px 12px;font-size:12.5px;display:flex;gap:8px;align-items:center}
+.fx-app .ah b{background:#003A70;color:#FFD200;border-radius:6px;padding:2px 5px;font-size:11px}
+.fx-app .ab{padding:12px;font-size:13.5px;line-height:1.4;background:#fff}
+.fx-app .ab small{display:block;color:#777;margin-top:4px}
+.fx-app .aa{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid #eee}
+.fx-app .aa button{border:0;background:#fff;padding:11px;font-weight:700;cursor:pointer;font-size:14px}
+.fx-app .aa .sim{color:#EC7000;border-left:1px solid #eee}.fx-app .aa .nao{color:#666}
+.fx-tempo{text-align:center;font-size:12.5px;color:#667781;margin-top:10px}
+.fx-ok{width:64px;height:64px;border-radius:50%;background:#E7F8EE;color:var(--green);display:grid;place-items:center;margin:18px auto 6px;font-size:32px}
+
+/* painel lateral */
+.panel h1{margin:4px 0 6px;font-size:26px;color:#fff}
+.panel h1 span{color:var(--accent)}
+.panel p{color:#b8b8c6;line-height:1.55;margin:0 0 10px}
+.box{background:#34343f;border:1px solid #44444f;border-radius:14px;padding:16px;margin-top:14px}
+.box b{color:#fff}
+.box select{width:100%;margin-top:10px;padding:10px;border-radius:10px;border:1px solid #55556a;background:#23232b;color:var(--ink)}
+.metaL{font-size:12.5px;color:#a9a9ba;margin-top:8px;line-height:1.5}
+#log{font-family:Consolas,ui-monospace,monospace;font-size:12px;background:#15151b;color:#cbd5e1;border-radius:10px;padding:10px;margin-top:10px;max-height:300px;overflow:auto;white-space:pre-wrap}
+#log .ag{color:#fdba74}#log .err{color:#fca5a5}#log .ok{color:#86efac}
+.demo{display:grid;gap:8px;margin-top:10px}
+.dq{text-align:left;border:1px solid #55556a;background:#23232b;color:#d6d6e2;border-radius:12px;padding:10px 12px;font-size:13.5px;line-height:1.4;cursor:pointer}
+.dq:hover{border-color:var(--accent);background:#2b2b35}
+.dq:disabled{opacity:.5;cursor:default}
+.dq .dt{display:block;color:#fff;font-weight:700;font-size:14px;margin-bottom:3px}
+.dq .st{display:inline-block;font-size:11.5px;padding:2px 8px;border-radius:10px;margin-left:6px;font-weight:600;vertical-align:middle}
+.st.ativo{background:#16794C33;color:#86efac}.st.trocar{background:#EC700033;color:#fdba74}.st.carregando{background:#ffffff14;color:#aaa}
+.tom{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-left:4px}
+.tom.positivo{color:#86efac}.tom.neutro{color:#93c5fd}.tom.negativo{color:#fca5a5}
+.reset{margin-top:12px;border:1px solid #66667a;background:none;color:var(--ink);padding:9px 12px;border-radius:10px;cursor:pointer}
+@media(max-width:900px){.wrap{grid-template-columns:1fr;align-items:start}.phone{margin:auto}.wrap>.phone{position:relative;top:auto}}
+@media(max-width:420px){.wrap{padding:0}.phone{width:100%;height:100vh;height:100dvh;aspect-ratio:auto;border-radius:0;padding:0;box-shadow:none}.screen{border-radius:0}.island{display:none}.panel{padding:0 16px 24px}}
+</style></head><body>
+<div class="wrap">
+<div class="phone"><div class="screen">
+ <div class="island"></div>
+ <div class="sb"><span id="clock"></span><span class="r">▮▮▮ 4G <span class="bat"></span></span></div>
+ <!-- tela de bloqueio (Cenário 2): a notificação do WhatsApp chega com o celular bloqueado -->
+ <div class="view" id="bloqueio" hidden>
+  <div class="lk-cad" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+  <div class="lk-data" id="lkData"></div>
+  <div class="lk-hora" id="lkHora"></div>
+  <div class="lk-notifs" id="lkNotifs"></div>
+  <div class="lk-rodape"><span class="lk-bt"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 2h6l-1 7h-4z"/><path d="M10 9h4v11a2 2 0 0 1-4 0z"/></svg></span><span class="lk-dica" id="lkDica">Toque na notificação para abrir</span><span class="lk-bt"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.3l1.4-2h5.6l1.4 2h1.3A2.5 2.5 0 0 1 20 8.5v8A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5z"/><circle cx="12" cy="12.3" r="3.4"/></svg></span></div>
+  <div class="lk-barra"></div>
+ </div>
+ <div class="view" id="lista" hidden>
+  <div class="lhead"><div class="lt">WhatsApp</div><div class="ics">
+   <button class="ic" aria-label="Câmera"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.3l1.4-2h5.6l1.4 2h1.3A2.5 2.5 0 0 1 20 8.5v8A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5z"/><circle cx="12" cy="12.3" r="3.4"/></svg></button>
+   <button class="ic" aria-label="Mais opções"><svg width="22" height="22" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.9" fill="currentColor"/><circle cx="12" cy="12" r="1.9" fill="currentColor"/><circle cx="12" cy="19" r="1.9" fill="currentColor"/></svg></button>
+  </div></div>
+  <div class="search"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 20 20"/></svg>Pergunte à Meta AI ou pesquise</div>
+  <div class="filters"><span class="on">Tudo</span><span>Não lidas <b id="fNao"></b></span><span>Favoritas</span><span>Grupos</span><span class="mais">+</span></div>
+  <div class="chats">
+   <div class="arq"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 8h16v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/><path d="M3 4h18v4H3z"/><path d="M12 11v5m-2.5-2.5L12 16l2.5-2.5"/></svg>Arquivadas</div>
+   <button class="citem" id="citem" onclick="mostrarConversa()">
+    <div class="av">ITA</div>
+    <div class="ci"><div class="top"><span class="nm">ITA | Itaú <svg width="16" height="16" viewBox="0 0 24 24" style="flex:none"><path fill="#1DAA61" d="M12 1l2.4 2.2 3.2-.5.9 3.1 2.9 1.5-1.2 3 1.2 3-2.9 1.5-.9 3.1-3.2-.5L12 23l-2.4-2.2-3.2.5-.9-3.1-2.9-1.5 1.2-3-1.2-3 2.9-1.5.9-3.1 3.2.5z"/><path fill="#fff" d="M10.6 15.6l-3.2-3.2 1.4-1.4 1.8 1.8 4.6-4.6 1.4 1.4z"/></svg></span><span class="tm" id="lTime"></span></div>
+     <div class="low"><span class="pv" id="lPrev">Toque para conversar com o ITA</span><span class="badge" id="lBadge" hidden></span></div></div>
+   </button>
+   <div class="crypt">🔒 Suas mensagens pessoais são protegidas com a <b>criptografia de ponta a ponta</b></div>
+  </div>
+  <div class="fabs">
+   <button class="fab-ai" aria-label="Meta AI"><i></i></button>
+   <button class="fab" aria-label="Nova conversa" onclick="mostrarConversa()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 0 1-11.6 7.1L4 20l1-4.2A8 8 0 1 1 20 12z"/><path d="M12 8.5v7M8.5 12h7"/></svg></button>
+  </div>
+  <div class="tabs">
+   <span class="on"><span class="pill"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3a9 9 0 0 0-7.8 13.5L3 21l4.6-1.2A9 9 0 1 0 12 3zm-4 8h8v1.6H8zm0-3h8v1.6H8zm0 6h5v1.6H8z"/></svg><b class="dot" id="tNao" hidden></b></span>Conversas</span>
+   <span><span class="pill"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8.2" stroke-dasharray="11 2.6"/><circle cx="12" cy="12" r="4" fill="currentColor" stroke="none"/></svg></span>Atualizações</span>
+   <span><span class="pill"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="3.2"/><path d="M6 19a6 6 0 0 1 12 0"/><circle cx="5" cy="10" r="2.2"/><circle cx="19" cy="10" r="2.2"/><path d="M1.8 17.5a4 4 0 0 1 3.6-3.3M22.2 17.5a4 4 0 0 0-3.6-3.3"/></svg></span>Comunidades</span>
+   <span><span class="pill"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M5 4h3.5l1.5 4-2 1.5a11 11 0 0 0 6.5 6.5l1.5-2 4 1.5V19a1.5 1.5 0 0 1-1.6 1.5A16.5 16.5 0 0 1 3.5 5.6 1.5 1.5 0 0 1 5 4z"/></svg></span>Ligações</span>
+  </div>
+ </div>
+ <div class="view" id="conversa">
+ <div class="head">
+  <button class="back" aria-label="Voltar para as conversas" onclick="mostrarLista()">‹</button>
+  <div class="av">ITA</div>
+  <div class="who">
+   <div class="n">ITA | Itaú <svg width="16" height="16" viewBox="0 0 24 24" aria-label="Conta verificada"><path fill="#1DAA61" d="M12 1l2.4 2.2 3.2-.5.9 3.1 2.9 1.5-1.2 3 1.2 3-2.9 1.5-.9 3.1-3.2-.5L12 23l-2.4-2.2-3.2.5-.9-3.1-2.9-1.5 1.2-3-1.2-3 2.9-1.5.9-3.1 3.2.5z"/><path fill="#fff" d="M10.6 15.6l-3.2-3.2 1.4-1.4 1.8 1.8 4.6-4.6 1.4 1.4z"/></svg></div>
+   <div class="s" id="status">Conta comercial oficial</div>
+  </div>
+  <button class="ic" aria-label="Opções" onclick="abrirMenu()"><svg width="22" height="22" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2" fill="currentColor"/><circle cx="12" cy="12" r="2" fill="currentColor"/><circle cx="12" cy="19" r="2" fill="currentColor"/></svg></button>
+ </div>
+ <div class="chat" id="chat"></div>
+ <div class="comp">
+  <div class="inbox"><input id="input" placeholder="Mensagem" autocomplete="off" onkeydown="if(event.key==='Enter')enviar()"></div>
+  <button class="send" id="sendBtn" aria-label="Enviar" onclick="enviar()"><svg width="22" height="22" viewBox="0 0 24 24"><path fill="currentColor" d="M3.4 20.4l17.4-7.5c.8-.4.8-1.5 0-1.8L3.4 3.6c-.7-.3-1.4.2-1.4.9L2 9.1c0 .5.4.9.9 1l14.1 1.9-14.1 1.9c-.5.1-.9.5-.9 1l0 4.6c0 .7.7 1.2 1.4.9z"/></svg></button>
+ </div>
+ </div>
+ <div class="scrim" id="scrim" hidden onclick="if(event.target===this)fecharFicha()"></div>
+</div></div>
+
+<!-- visor de imagem em tela cheia -->
+<div class="visor" id="visor" hidden role="dialog" aria-modal="true" aria-labelledby="visorTitulo" onclick="if(event.target===this||event.target.classList.contains('visor-img'))fecharImagem()">
+ <div class="visor-top"><div class="av">ITA</div><div class="vt"><b>ITA | Itaú</b><small><span id="visorTitulo"></span> · hoje <span id="visorHora"></span></small></div>
+  <button id="visorFechar" aria-label="Fechar imagem" onclick="fecharImagem()">✕</button></div>
+ <div class="visor-img"><img id="visorImg" alt=""></div>
+</div>
+<aside class="panel">
+ <h1><span>ITA</span> no WhatsApp</h1>
+ <div class="box"><b>Cenário 1 · Previsibilidade</b>
+  <div class="metaL">Clique para enviar a pergunta ao agente na conversa do cliente selecionado.</div>
+  <div class="demo" id="demo1">
+   <button class="dq" data-q="Quanto eu realmente posso gastar até meu próximo salário sem comprometer minhas contas?"><span class="dt">💰 Quanto posso gastar</span>“Quanto eu realmente posso gastar até meu próximo salário sem comprometer minhas contas?”</button>
+   <button class="dq" data-q="Por que meu dinheiro está acabando mais rápido este mês?"><span class="dt">📉 Dinheiro acabando</span>“Por que meu dinheiro está acabando mais rápido este mês?”</button>
+   <button class="dq" data-q="Recebi minha PLR. O que muda se eu usar uma parte para antecipar parcelas e outra para investir?"><span class="dt">🎁 Recebi minha PLR</span>“Recebi minha PLR. O que muda se eu usar uma parte para antecipar parcelas e outra para investir?”</button>
+  </div>
+ </div>
+ <div class="box"><b>Cenário 2 · Proatividade</b>
+  <div class="metaL">O banco detecta o evento no extrato e o ITA chama o cliente: a notificação do WhatsApp chega com o celular bloqueado. Se o cliente atual não tiver o gatilho, sorteio um que tem.</div>
+  <div class="demo" id="demo2"></div>
+ </div>
+ <div class="box"><b>Cenário 3 · Produtos</b>
+  <div class="metaL">O ITA só sugere Financiamento, Consórcio ou Crédito pessoal Itaú quando as regras permitem. Os valores das perguntas saem da renda do cliente, e o cliente é sorteado entre os que têm perfil para o caso.</div>
+  <div class="demo" id="demo3"></div>
+ </div>
+ <div class="box"><b>Cliente</b>
+  <select id="cliente" onchange="trocarCliente(this.value)"><option>carregando…</option></select>
+  <div class="metaL" id="meta" hidden></div>
+  <button class="reset" onclick="trocarCliente(uid)">↺ Recomeçar conversa</button>
+ </div>
+ <!-- "Por dentro" oculto por enquanto: o log continua sendo preenchido; para mostrar, remova o hidden -->
+ <div class="box" hidden><b>Por dentro</b>
+  <div class="metaL">Cada chamada à API e cada passo dos agentes, com o tempo: de onde vem cada número.</div>
+  <div id="log">aguardando…</div>
+ </div>
+</aside>
+</div>
+<script>
+// Backend em produção (Cloud Run). Servida pelo próprio backend (/whatsapp), usa a mesma origem;
+// aberta como arquivo local, chama a produção. Para apontar para outro lugar: ?api=http://localhost:8080
+const PROD = 'https://agente-540082622758.us-central1.run.app';
+const API = new URLSearchParams(location.search).get('api') || (location.protocol.startsWith('http') ? '' : PROD);
+let uid = null, sessionId = null, ultimo = null, aguardando = null, compraValor = null, ocupado = false, perfilAtual = null;
+// sugestões de valor sempre derivadas dos dados do cliente (renda média e gasto seguro vindos da API)
+const arred = v => Math.max(50, Math.round(v / 50) * 50);
+const rendaAtual = () => perfilAtual?.renda_mensal_media || 0;
+const chat = document.getElementById('chat');
+
+// ---------- utilidades ----------
+const brl = v => Number(v || 0).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+const dm = iso => iso ? iso.slice(8, 10) + '/' + iso.slice(5, 7) : '—';
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
+const hhmm = () => new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'});
+const cls = v => v < 0 ? 'neg' : '';
+// formatação estilo WhatsApp: *negrito*, _itálico_, ~riscado~, listas e parágrafos.
+// Também "conserta" o markdown que o LLM às vezes manda (**negrito**, # títulos, - listas, 1. listas).
+const inline = t => esc(t)
+  .replace(/\*\*([^*\n]+)\*\*/g, '<b>$1</b>').replace(/\*([^*\n]+)\*/g, '<b>$1</b>')
+  .replace(/(^|[\s(])_([^_\n]+)_(?=[\s.,!?:)]|$)/g, '$1<i>$2</i>').replace(/~([^~\n]+)~/g, '<s>$1</s>');
+const GAP = '<div class="gap"></div>';
+function fmt(s) {
+  const out = [];
+  for (const bruta of String(s ?? '').replace(/\r/g, '').split('\n')) {
+    const l = bruta.trim();
+    let m;
+    if (!l) { if (out.length && out.at(-1) !== GAP) out.push(GAP); continue }
+    if ((m = l.match(/^#{1,6}\s+(.*)$/))) out.push(`<div class="h">${inline(m[1].replace(/\*+/g, ''))}</div>`);
+    else if ((m = l.match(/^(\d+)[.)]\s+(.*)$/))) out.push(`<div class="li"><span class="bl">${m[1]}.</span><span>${inline(m[2])}</span></div>`);
+    else if ((m = l.match(/^[-*•]\s+(.*)$/))) out.push(`<div class="li"><span class="bl">•</span><span>${inline(m[1])}</span></div>`);
+    else out.push(`<div>${inline(l)}</div>`);
+  }
+  while (out.at(-1) === GAP) out.pop();
+  return out.join('');
+}
+// divide a resposta dos agentes em balões, como alguém digitando no WhatsApp:
+// abertura | corpo | pergunta final | oferta (sempre num balão próprio)
+function emBaloes(txt) {
+  const blocos = String(txt || '').trim().split(/\n\s*\n/).map(b => b.trim()).filter(Boolean);
+  const iOf = blocos.findIndex(b => /📌/.test(b));
+  const corpo = iOf >= 0 ? blocos.slice(0, iOf) : blocos;
+  const baloes = [];
+  if (corpo.length) baloes.push({texto: corpo[0]});
+  let meio = corpo.slice(1), pergunta = null;
+  if (meio.length >= 2 && /\?\s*$/.test(meio.at(-1)) && meio.at(-1).length < 220) pergunta = meio.pop();
+  if (meio.length) baloes.push({texto: meio.join('\n\n')});
+  if (pergunta) baloes.push({texto: pergunta});
+  if (iOf >= 0) baloes.push({texto: blocos.slice(iOf).join('\n\n'), classe: 'oferta'});
+  return baloes.length ? baloes : [{texto: '(sem resposta)'}];
+}
+const espera = ms => new Promise(r => setTimeout(r, ms));
+function lerValor(s) {
+  let t = String(s).replace(/[^\d,.]/g, '');
+  if (t.includes(',')) t = t.replace(/\./g, '').replace(',', '.');
+  else if (/^\d{1,3}(\.\d{3})+$/.test(t)) t = t.replace(/\./g, '');
+  const v = parseFloat(t);
+  return isFinite(v) && v > 0 ? v : null;
+}
+setInterval(() => document.getElementById('clock').textContent = hhmm(), 15000);
+document.getElementById('clock').textContent = hhmm();
+
+function log(html) {
+  const el = document.getElementById('log');
+  if (el.textContent === 'aguardando…') el.innerHTML = '';
+  el.insertAdjacentHTML('beforeend', html + '\n');
+  el.scrollTop = el.scrollHeight;
+}
+async function api(path, opts, timeoutMs = 30000) {
+  const t0 = performance.now(), metodo = opts?.method || 'GET', ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+  try {
+    const r = await fetch(API + path, {...opts, signal: ctrl.signal});
+    const j = await r.json().catch(() => ({}));
+    log(`${metodo} ${esc(path)} → <span class="${r.ok ? 'ok' : 'err'}">${r.status}</span> (${((performance.now() - t0) / 1000).toFixed(1)} s)`);
+    if (!r.ok) throw new Error(j.detail || 'HTTP ' + r.status);
+    return j;
+  } catch (e) {
+    const msg = e.name === 'AbortError' ? 'tempo esgotado' : e.message;
+    log(`<span class="err">${metodo} ${esc(path)} ✗ ${esc(msg)}</span>`);
+    throw new Error(msg);
+  } finally { clearTimeout(timer) }
+}
+
+// ---------- mensagens ----------
+let ultimoAutor = null;
+function linha(autor) {
+  const row = document.createElement('div');
+  row.className = 'row ' + autor + (ultimoAutor !== autor ? ' first' : '');
+  ultimoAutor = autor;
+  chat.appendChild(row);
+  return row;
+}
+function rolar() { requestAnimationFrame(() => chat.scrollTop = chat.scrollHeight) }
+const TICK = '<svg class="tick" width="16" height="11" viewBox="0 0 16 11"><path fill="currentColor" d="M11.1.6 10 .1 4.6 6.9 2.2 4.6l-1 1 3.4 3.3zM15.2.6 14.1.1 8.7 6.9l-.6-.6-1 1 1.7 1.6z"/></svg>';
+
+// mensagem do cliente
+function eu(texto) {
+  const row = linha('me');
+  row.innerHTML = `<div class="bub">${esc(texto)}<span class="meta">${hhmm()} ${TICK}</span></div>`;
+  rolar();
+  return row.querySelector('.tick');
+}
+// mensagem do ITA: {texto, card, rodape, botoes:[{t, fn}], lista:{botao, titulo, itens:[{t, d, fn}]}}
+function ita(m) {
+  const row = linha('bot');
+  const b = document.createElement('div');
+  b.className = 'bub' + (m.classe ? ' ' + m.classe : '');
+  if (m.imagem) {
+    // mensagem de imagem do WhatsApp: miniatura com o horário por cima; tocando, abre em tela cheia
+    const i = IMAGENS.push({...m.imagem, hora: hhmm()}) - 1, t = esc(m.imagem.titulo || 'Gráfico');
+    b.classList.add('foto');
+    b.innerHTML = `<button class="foto-bt" onclick="verImagem(${i})" aria-label="Abrir imagem: ${t}"><img src="${m.imagem.src}" alt="${t}"><span class="meta">${hhmm()}</span></button>`;
+  } else {
+    b.innerHTML = (m.card || '') + (m.texto ? fmt(m.texto) : '') + (m.html || '') +
+      (m.rodape ? `<div class="foot">${esc(m.rodape)}</div>` : '') + `<span class="meta">${hhmm()}</span>`;
+  }
+  const acoes = [...(m.botoes || [])];
+  if (m.lista) acoes.push({t: '☰  ' + m.lista.botao, lista: m.lista});
+  if (acoes.length) {
+    const box = document.createElement('div');
+    box.className = 'acts';
+    for (const a of acoes) {
+      const btn = document.createElement('button');
+      btn.className = 'act';
+      btn.textContent = a.t;
+      btn.onclick = () => {
+        if (ocupado) return;
+        if (a.lista) return abrirFicha(a.lista);
+        box.querySelectorAll('.act').forEach(x => x.disabled = true);
+        eu(a.t.replace(/^[^\wÀ-ú]+\s*/, ''));
+        a.fn();
+      };
+      box.appendChild(btn);
+    }
+    b.appendChild(box);
+  }
+  row.appendChild(b);
+  rolar();
+  avisarLista(m);
+  return b;
+}
+// ---------- navegação: lista de conversas <-> conversa com o ITA ----------
+let naoLidas = 0;
+function naLista() { return !document.getElementById('lista').hidden }
+function mostrarTela(id) {
+  fecharFicha();
+  for (const v of ['bloqueio', 'lista', 'conversa']) document.getElementById(v).hidden = v !== id;
+  document.querySelector('.screen').classList.toggle('modo-bloqueio', id === 'bloqueio');
+}
+function mostrarLista() { mostrarTela('lista') }
+function mostrarConversa() {
+  naoLidas = 0;
+  atualizarItem();
+  esconderPush();
+  mostrarTela('conversa');
+  rolar();
+}
+function atualizarItem(previa) {
+  if (previa !== undefined) {
+    document.getElementById('lPrev').textContent = previa;
+    document.getElementById('lTime').textContent = hhmm();
+  }
+  const b = document.getElementById('lBadge'), t = document.getElementById('tNao');
+  b.textContent = t.textContent = naoLidas;
+  b.hidden = t.hidden = naoLidas === 0;
+  document.getElementById('fNao').textContent = naoLidas ? naoLidas : '';
+  document.getElementById('lTime').classList.toggle('new', naoLidas > 0);
+  document.getElementById('citem').classList.toggle('unread', naoLidas > 0);
+}
+function avisarLista(m) {
+  if (m.imagem) {  // prévia de foto na lista de conversas, como no WhatsApp
+    if (document.getElementById('conversa').hidden) naoLidas++;
+    return atualizarItem('📷 ' + (m.imagem.titulo || 'Foto'));
+  }
+  const tmp = document.createElement('div');
+  tmp.innerHTML = m.texto ? fmt(m.texto) : (m.html || '');
+  const linha1 = (tmp.textContent || '').trim().split(/\n|(?<=[.!?])\s/)[0] || 'Nova mensagem';
+  if (document.getElementById('conversa').hidden) naoLidas++;  // na lista ou no app do banco: conta como não lida
+  atualizarItem((m.card ? '📊 ' : '') + linha1);
+}
+
+function digitando(texto) {
+  const row = linha('bot');
+  row.innerHTML = `<div class="bub"><span class="dots"><i></i><i></i><i></i></span>${texto ? `<div class="slow">${esc(texto)}</div>` : ''}</div>`;
+  const st = document.getElementById('status');
+  st.textContent = 'digitando…'; st.classList.add('typing');
+  rolar();
+  return () => {
+    row.remove();
+    const ult = chat.lastElementChild;
+    ultimoAutor = ult?.classList.contains('row') ? (ult.classList.contains('me') ? 'me' : 'bot') : null;
+    st.textContent = 'online'; st.classList.remove('typing');
+  };
+}
+async function comDigitando(fn, texto) {
+  ocupado = true;
+  const fim = digitando(texto);
+  try { return await fn() }
+  finally { fim(); ocupado = false }
+}
+function erro(e) { ita({texto: `Não consegui buscar seus dados agora (_${e.message}_). Tente de novo em instantes.`, botoes: [verOpcoes()]}) }
+
+// ficha de lista (bottom sheet do WhatsApp)
+function abrirFicha(lista) {
+  const scrim = document.getElementById('scrim');
+  scrim.innerHTML = `<div class="sheet" role="dialog" aria-label="${esc(lista.titulo)}"><div class="grab"></div><div class="sh">${esc(lista.titulo)}</div>${lista.itens.map((it, i) => `<button class="lrow" data-i="${i}"><div><div class="tt">${esc(it.t)}</div>${it.d ? `<div class="dd">${esc(it.d)}</div>` : ''}</div><span class="rd"></span></button>`).join('')}</div>`;
+  scrim.querySelectorAll('.lrow').forEach(el => el.onclick = () => { const it = lista.itens[+el.dataset.i]; fecharFicha(); eu(it.t); it.fn() });
+  scrim.hidden = false;
+}
+function fecharFicha() { document.getElementById('scrim').hidden = true }
+
+// ---------- nomes fictícios para os clientes ----------
+// A base é sintética e só tem UUIDs: cada id ganha um nome único e estável (o id continua sendo o que vai para a API)
+const PRIMEIROS = ['Ana', 'Bruno', 'Camila', 'Diego', 'Eduarda', 'Felipe', 'Gabriela', 'Henrique', 'Isabela', 'João', 'Larissa', 'Lucas', 'Mariana', 'Mateus', 'Natália', 'Otávio', 'Paula', 'Rafael', 'Renata', 'Rodrigo', 'Sabrina', 'Thiago', 'Vanessa', 'Vinícius', 'Beatriz', 'Caio', 'Débora', 'Enzo', 'Fernanda', 'Gustavo', 'Helena', 'Igor', 'Júlia', 'Kaique', 'Letícia', 'Marcelo', 'Nicole', 'Pedro', 'Raquel', 'Samuel'];
+const SOBRENOMES = ['Almeida', 'Barbosa', 'Cardoso', 'Costa', 'Dias', 'Ferreira', 'Gomes', 'Lima', 'Martins', 'Melo', 'Monteiro', 'Nascimento', 'Oliveira', 'Pereira', 'Ribeiro', 'Rocha', 'Santos', 'Silva', 'Souza', 'Teixeira', 'Araújo', 'Batista', 'Campos', 'Carvalho', 'Castro', 'Correia', 'Freitas', 'Lopes', 'Moreira', 'Nunes', 'Pinto', 'Ramos', 'Reis', 'Rezende', 'Siqueira', 'Tavares', 'Vieira', 'Xavier', 'Azevedo', 'Brandão'];
+const NOMES = new Map();
+function hash(s) { let h = 2166136261; for (const ch of s) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619) } return h >>> 0 }
+function nomear(ids) {
+  const usados = new Set(), total = PRIMEIROS.length * SOBRENOMES.length;
+  for (const id of ids) {
+    let k = hash(id) % total;
+    while (usados.has(k)) k = (k + 1) % total;  // garante nomes únicos na lista
+    usados.add(k);
+    NOMES.set(id, PRIMEIROS[k % PRIMEIROS.length] + ' ' + SOBRENOMES[Math.floor(k / PRIMEIROS.length)]);
+  }
+}
+const primeiroNome = id => (NOMES.get(id) || '').split(' ')[0] || 'tudo bem';
+
+// ---------- cliente e boas-vindas proativas ----------
+async function carregarClientes() {
+  const sel = document.getElementById('cliente');
+  try {
+    const {clientes} = await api('/clientes?limite=50');
+    nomear(clientes);
+    sel.innerHTML = clientes.map(c => `<option value="${esc(c)}">${esc(NOMES.get(c))}</option>`).join('');
+    const padrao = clientes.includes('camila-demo') ? 'camila-demo' : clientes[0];
+    sel.value = padrao;
+    trocarCliente(padrao);
+  } catch (e) {
+    sel.innerHTML = '<option>API indisponível</option>';
+    document.getElementById('meta').textContent = 'Não consegui falar com a API: ' + e.message;
+  }
+}
+async function trocarCliente(id, {saudacao = true} = {}) {
+  if (!id) return;
+  uid = id; sessionId = null; ultimo = null; aguardando = null; ultimoAutor = null; ocupado = false;
+  naoLidas = 0; gatilhosAtuais = null;
+  document.getElementById('cliente').value = id;
+  esconderPush();
+  mostrarLista();  // o ITA puxa a conversa: as mensagens chegam como notificação na lista
+  atualizarItem(saudacao ? 'ITA está digitando…' : 'Toque para conversar com o ITA');
+  chat.innerHTML = `<div class="day"><span>Hoje</span></div><div class="notice">🔒 Esta empresa usa um serviço seguro da Meta para gerenciar esta conversa. O ITA nunca pede sua senha por aqui.</div>`;
+  carregarGatilhos(id);
+  try { perfilAtual = saudacao ? await comDigitando(() => api(`/clientes/${encodeURIComponent(id)}/perfil`))
+                               : await api(`/clientes/${encodeURIComponent(id)}/perfil`) } catch (e) { return erro(e) }
+  // abertura: só a saudação, com o botão "Ver opções" para navegar
+  if (saudacao) ita({texto: `Oi, ${primeiroNome(id)}! 👋 Eu sou o *ITA*, o agente financeiro do Itaú.`, lista: opcoes()});
+}
+function menu() { ita({texto: 'Como posso te ajudar agora?', lista: opcoes()}) }
+// botão "Ver opções" que abre direto a lista de opções (sem mandar mensagem nem pedir outro toque)
+const verOpcoes = () => ({t: '☰  Ver opções', lista: opcoes()});
+function opcoes() {
+  return {botao: 'Ver opções', titulo: 'O que o ITA faz', itens: [
+    {t: 'Até o próximo salário dá?', d: 'Quanto dá para gastar sem entrar no vermelho', fn: salario},
+    {t: 'Meu saldo nos próximos 90 dias', d: 'Projeção dia a dia com contas e parcelas', fn: projecao},
+    {t: 'Simular uma compra', d: 'Parcelar agora, dar entrada ou esperar', fn: compra},
+    {t: 'Entender meus gastos', d: 'Categorias, contas fixas e parcelas', fn: gastos},
+    {t: 'Avisos e oportunidades', d: 'Apertos, fim de parcelas e reserva', fn: oportunidades},
+    {t: 'Perguntar ao ITA', d: 'Escreva do seu jeito (agentes com IA)', fn: perguntar},
+  ]};
+}
+function abrirMenu() { if (uid && !ocupado) menu() }
+
+// ---------- jornadas (motor determinístico) ----------
+async function salario() {
+  // primeiro pergunta ao motor quanto cabe até a próxima renda; as sugestões saem daí e da renda do cliente
+  let r0;
+  try { r0 = ultimo = await comDigitando(() => api(`/clientes/${encodeURIComponent(uid)}/ate-salario?gasto=0`)) } catch (e) { return erro(e) }
+  aguardando = 'salario';
+  const seguro = r0.gasto_maximo_seguro, renda = rendaAtual();
+  const sugestoes = [...new Set([seguro, renda * 0.1, renda * 0.25].filter(v => v > 0).map(v => v === seguro ? v : arred(v)))].sort((a, b) => a - b).slice(0, 3);
+  const quando = r0.proxima_renda ? `até a próxima renda (${dm(r0.proxima_renda.data)})` : `nos próximos ${r0.dias_ate_renda} dias`;
+  ita({texto: seguro > 0
+      ? `Pelo seu extrato, ${quando} dá para gastar até *${brl(seguro)}* mantendo a margem de segurança. Quanto você está pensando em gastar? Toque num valor ou digite.`
+      : `Pelo seu extrato, ${quando} o seu saldo já fica abaixo da margem de segurança. Quanto você está pensando em gastar? Eu te mostro o impacto.`,
+    botoes: sugestoes.map(v => ({t: brl(v) + (v === seguro ? ' (máximo seguro)' : ''), fn: () => ateSalario(v)}))});
+}
+async function ateSalario(v) {
+  aguardando = null;
+  let r;
+  try { r = ultimo = await comDigitando(() => api(`/clientes/${encodeURIComponent(uid)}/ate-salario?gasto=${v}`)) } catch (e) { return erro(e) }
+  const com = r.com_gasto, sem = r.sem_gasto, renda = r.proxima_renda;
+  const quando = renda ? `até o seu *${renda.descricao}* de ${dm(renda.data)} (daqui a ${r.dias_ate_renda} dias)` : `nos próximos ${r.dias_ate_renda} dias`;
+  const veredito = r.cabe ? `✅ *Cabe.* Você chega ${quando} com ${brl(com.saldo_final)}, acima da margem de segurança de ${brl(r.margem_seguranca)}.`
+    : com.dias_no_negativo ? `⚠️ *Hoje eu não recomendaria.* Com ${brl(v)}, seu saldo fica negativo por ${com.dias_no_negativo} dia(s) ${quando}; o pior momento é ${dm(com.data_menor_saldo)} (${brl(com.menor_saldo)}).`
+    : `⚠️ *Cabe, mas fica apertado.* O saldo chega a ${brl(com.menor_saldo)} em ${dm(com.data_menor_saldo)}, abaixo da margem de ${brl(r.margem_seguranca)}.`;
+  const seguro = r.gasto_maximo_seguro;
+  await enviarGraficos({ate_salario: r});
+  ita({texto: veredito + (!r.cabe && seguro > 0 ? `\n\nPara manter a margem, um gasto de até *${brl(seguro)}* seria mais compatível. A decisão é sua.` : !r.cabe ? '\n\nSe der, o ideal é esperar a próxima renda. A decisão é sua.' : '\n\nA decisão é sua.'),
+    botoes: [...(!r.cabe && seguro > 0 && seguro !== v ? [{t: `Simular ${brl(seguro)}`, fn: () => ateSalario(seguro)}] : []), {t: 'Como você calculou?', fn: detalhes}, {t: 'Outro valor', fn: salario}]});
+}
+function detalhes() {
+  if (!ultimo) return menu();
+  const c = ultimo.compromissos;
+  ita({html: `Partindo do seu saldo de <b>${brl(ultimo.saldo_atual)}</b>, até a próxima renda eu considerei:<div class="kv"><span>Contas recorrentes</span><span>${brl(c.contas_fixas)}</span><span>Parcelas</span><span>${brl(c.parcelas)}</span><span>Gastos do dia a dia (média)</span><span>${brl(c.gasto_variavel_estimado)}</span>${c.outras_entradas ? `<span>Outras entradas previstas</span><span class="pos">+${brl(c.outras_entradas)}</span>` : ''}</div>`,
+    botoes: [verOpcoes()]});
+}
+async function projecao() {
+  let p;
+  try { p = await comDigitando(() => api(`/clientes/${encodeURIComponent(uid)}/projecao?dias=90`)) } catch (e) { return erro(e) }
+  const g = p.evento_gatilho;
+  await enviarGraficos({projecao: p});
+  ita({texto: p.dias_no_negativo
+      ? `⚠️ Seu saldo deve ficar negativo a partir de *${dm(p.primeiro_dia_negativo)}*${g ? `, logo depois de _${g.descricao}_ (${brl(g.valor)})` : ''}. O ponto mais baixo é ${brl(p.menor_saldo)} em ${dm(p.data_menor_saldo)}.`
+      : `✅ Seu saldo não fica negativo nos próximos 90 dias. O ponto mais baixo é ${brl(p.menor_saldo)} em ${dm(p.data_menor_saldo)}.`,
+    botoes: [{t: '💰 Até o salário dá?', fn: salario}, {t: '🛒 Simular uma compra', fn: compra}]});
+}
+function compra() {
+  aguardando = 'compra';
+  const renda = rendaAtual();
+  const ex = renda > 0 ? [{v: arred(renda * 0.5), d: 'meia renda'}, {v: arred(renda), d: '1 mês de renda'}] : [];
+  ita({texto: 'Qual o valor da compra? Digite o valor' + (ex.length ? ' ou toque numa referência baseada na sua renda média.' : '.'),
+    botoes: ex.map(e => ({t: `${brl(e.v)} · ${e.d}`, fn: () => parcelas(e.v)}))});
+}
+function parcelas(v) {
+  compraValor = v; aguardando = 'parcelas';
+  ita({texto: `Em quantas vezes você pensa em pagar os ${brl(v)}?`, botoes: [1, 6, 12].map(n => ({t: n === 1 ? 'À vista' : `${n}x`, fn: () => comparar(v, n)}))});
+}
+async function comparar(valor, n) {
+  aguardando = null;
+  let r;
+  try { r = await comDigitando(() => api(`/clientes/${encodeURIComponent(uid)}/comparar`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({valor, parcelas: n})})) } catch (e) { return erro(e) }
+  const rec = r.opcoes.find(o => o.chave === r.recomendada), agora = r.opcoes.find(o => o.chave === 'agora');
+  await enviarGraficos({comparacao: r});
+  ita({html:`${agora.dias_no_negativo ? `Pode, mas comprando agora seu saldo fica <b>${agora.dias_no_negativo} dia(s) no negativo</b>${agora.evento_gatilho ? `, logo depois de <i>${esc(agora.evento_gatilho.descricao)}</i>` : ''}.` : 'Comparei os caminhos possíveis:'}
+      <div style="margin-top:6px">${r.opcoes.map(o => `<div class="opt"><span>${o.chave === r.recomendada ? '<span class="rec">★ </span>' : ''}${esc(o.opcao)}<br><small>${o.dias_no_negativo ? o.dias_no_negativo + ' dia(s) no negativo' : 'nunca negativo'} · ${o.comprometimento_renda_pct}% da renda</small></span><b class="${cls(o.menor_saldo)}">${brl(o.menor_saldo)}<br><small>menor saldo</small></b></div>`).join('')}</div>`});
+  ita({texto: `Minha sugestão: *${rec.opcao}*, porque ${r.motivo}. A decisão é sua. 🙂\n\n📚 _Mais importante que a parcela caber é quanto da renda fica comprometida: com essa opção, ${rec.comprometimento_renda_pct}% da sua renda vai para contas fixas e parcelas. Acima de 30% o orçamento fica sem folga para imprevistos._`,
+    botoes: [{t: 'Simular outro valor', fn: compra}, verOpcoes()]});
+}
+async function gastos() {
+  let p;
+  try { p = await comDigitando(() => api(`/clientes/${encodeURIComponent(uid)}/perfil`)) } catch (e) { return erro(e) }
+  ita({html: `Nos últimos 3 meses você recebeu em média <b>${brl(p.renda_mensal_media)}</b> e gastou <b>${brl(p.gastos_mensais_medios)}</b> por mês. Contas fixas e parcelas comprometem <b>${p.comprometimento_renda_pct}%</b> da sua renda.
+    <div class="kv">${p.top_categorias_mes.map(t => `<span>${esc(t.categoria)}</span><span>${brl(t.valor_mensal)}</span>`).join('')}</div>`, rodape: 'Média mensal por categoria'});
+  const fixas = p.contas_fixas.slice(0, 8);
+  if (fixas.length || p.parcelas_abertas.length) ita({html: `<b>O que se repete todo mês</b><div class="kv">${fixas.map(f => `<span>${esc(f.descricao)} <small>dia ${f.dia}</small></span><span>${brl(f.valor)}</span>`).join('')}${p.parcelas_abertas.map(x => `<span>${esc(x.descricao)} <small>até ${dm(x.termina_em)}</small></span><span>${brl(x.valor_parcela)}</span>`).join('')}</div>`});
+  ita({texto: p.dias_no_negativo_90d ? `Nos últimos 90 dias sua conta ficou *${p.dias_no_negativo_90d} dia(s) no negativo*. O cheque especial tem um dos juros mais altos do mercado; vale evitar até poucos dias por mês.` : 'Sua conta não ficou no negativo nos últimos 90 dias. 👏',
+    botoes: [{t: '📉 Ver meu saldo', fn: projecao}, verOpcoes()]});
+}
+async function oportunidades() {
+  let al;
+  try { al = (await comDigitando(() => api(`/clientes/${encodeURIComponent(uid)}/alertas`))).alertas } catch (e) { return erro(e) }
+  if (!al.length) return ita({texto: 'Olhei os próximos meses e não encontrei nada fora do normal. Seu fluxo parece estável. ✅', botoes: [verOpcoes()]});
+  for (const a of al) ita({texto: `${a.tipo === 'aperto' ? '⚠️' : a.tipo.startsWith('oportunidade') ? '✨' : 'ℹ️'} *${a.titulo}*\n${a.mensagem}${a.educativo ? '\n\n📚 _' + a.educativo + '_' : ''}`});
+  ita({texto: 'Quer que eu simule alguma decisão com base nisso?', botoes: [{t: '💰 Até o salário dá?', fn: salario}, {t: '🛒 Simular uma compra', fn: compra}]});
+}
+function perguntar() {
+  aguardando = null;
+  const ex = rendaAtual() > 0 ? `_"Posso parcelar uma compra de ${brl(arred(rendaAtual()))} em 12x?"_` : '_"Posso parcelar uma compra em 12x?"_';
+  ita({texto: `Pode escrever do seu jeito, por exemplo: ${ex} ou _"Vou ficar no vermelho este mês?"_`});
+  document.getElementById('input').focus();
+}
+
+// ---------- texto livre ----------
+async function enviar() {
+  const inp = document.getElementById('input'), txt = inp.value.trim();
+  if (!txt || !uid || ocupado) return;
+  inp.value = '';
+  const numero = /^\s*(r\$)?\s*[\d.,]+\s*(x|vezes)?\s*$/i.test(txt);
+  if (aguardando && numero) {
+    eu(txt);
+    const v = lerValor(txt);
+    if (aguardando === 'parcelas') { const n = Math.round(v || 1); return n >= 1 && n <= 48 ? comparar(compraValor, n) : ita({texto: 'Me diga um número de parcelas entre 1 e 48.'}) }
+    if (!v) return ita({texto: 'Não entendi o valor. Pode digitar só os números, sem texto?'});
+    return aguardando === 'salario' ? ateSalario(v) : parcelas(v);
+  }
+  aguardando = null;
+  return perguntarAgentes(txt, eu(txt));
+}
+// manda a pergunta para os agentes (/chat) e mostra a resposta em balões; tick = ✓✓ da mensagem do cliente
+// extra: {rota} quando o cliente escolhe um botão da clarificação; {gatilho} quando responde a um aviso proativo
+async function perguntarAgentes(txt, tick, extra = {}) {
+  let r;
+  try {
+    r = await comDigitando(() => api('/chat', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({id_usuario: uid, mensagem: txt, session_id: sessionId, ...extra})}, 120000));
+  } catch (e) { return ita({texto: `Não consegui falar com os agentes agora (_${e.message}_). Os atalhos do menu funcionam sem a IA.`, botoes: [verOpcoes()]}) }
+  tick?.classList.add('read');
+  sessionId = r.session_id || sessionId;
+  for (const t of r.trilha || []) log(`<span class="ag">  ↳ ${esc(t.agente)}</span> ${esc(t.acao)}${t.ferramenta ? ' ' + esc(t.ferramenta) : ''}${t.motivo ? ' (' + esc(t.motivo) + ')' : ''}`);
+  // gráficos do que foi calculado nesta mensagem entram logo depois do primeiro balão
+  const texto = emBaloes(r.resposta), cartoes = (r.imagens || []).map(imagem => ({imagem, texto: ''}));
+  const baloes = texto.length ? [texto[0], ...cartoes, ...texto.slice(1)] : cartoes;
+  ofertaAtual = r.dados_tela?.oferta ? montarOferta(r.dados_tela.oferta, r.dados_tela) : null;
+  ocupado = true;
+  try {
+    for (let i = 0; i < baloes.length; i++) {
+      if (i) { const fim = digitando(); await espera(Math.min(1400, 350 + baloes[i].texto.length * 4)); fim() }
+      const fechamento = i === baloes.length - 1;
+      // no balão da oferta, as ações são exatamente as do produto: simular e contratar aqui na conversa;
+      // na clarificação, cada botão leva a mesma pergunta direto ao especialista escolhido
+      const opcoes = r.dados_tela?.clarificacao?.opcoes;
+      const botoes = baloes[i].classe === 'oferta' && ofertaAtual ? botoesOferta()
+        : fechamento && opcoes?.length ? opcoes.map(o => ({t: o.texto, fn: () => perguntarAgentes(txt, undefined, {rota: o.rota})}))
+        : fechamento ? [verOpcoes()] : undefined;
+      ita({...baloes[i], botoes});
+    }
+  } finally { ocupado = false }
+}
+
+// ---------- Cenário 2: proatividade (gatilhos detectados no extrato) ----------
+const GATILHOS = [
+  {tipo: 'fim_parcela', emoji: '💰', titulo: 'Fim de parcela', tom: 'positivo'},
+  {tipo: 'mes_no_azul', emoji: '🎉', titulo: 'Mês no azul', tom: 'positivo'},
+  {tipo: 'aumento_entradas', emoji: '📈', titulo: 'Aumento de entradas', tom: 'neutro'},
+  {tipo: 'dia_salario', emoji: '🗓️', titulo: 'Dia do salário', tom: 'neutro'},
+  {tipo: 'pressao_financeira', emoji: '⚠️', titulo: 'Pressão financeira', tom: 'negativo'},
+  {tipo: 'categoria_fora', emoji: '🛒', titulo: 'Gasto fora do normal', tom: 'negativo'},
+];
+let gatilhosAtuais = null, demoGatilhos = null;
+// Clientes reais (BigQuery) em que cada gatilho acontece, pré-calculados entre os 50 do seletor:
+// o botão sorteia um deles em vez de procurar na hora.
+const CLIENTES_GATILHO = {
+  fim_parcela: ['00108ccd-699c-453a-a9f9-a66aad6e03e5', '001221d1-3626-45c1-807a-990502adf808', '00ac49e5-4660-4214-b994-2122c59e1b92', '00cab281-99de-4b37-9c08-62bf796640b1', '01586908-198c-4876-889f-fe165a3863a6', '0187334b-7c90-44a0-aa33-10025e7f196f', '01adb377-d0c0-479b-a88d-90e3e9a27f8b', '021e9ebf-514a-4b64-8212-251602d94073', '0231d306-f210-40a2-8ce3-a86d07384734', '02d4451e-a29e-477b-a3f8-74ff591aa60d'],
+  mes_no_azul: ['00ac49e5-4660-4214-b994-2122c59e1b92', '012b40fb-79b9-482a-bbdf-984508ff80cf', '01e3f8e5-126d-4ed5-9fd5-2ada568d5f1d', '021e9ebf-514a-4b64-8212-251602d94073', '0231d306-f210-40a2-8ce3-a86d07384734', '03ff4580-931a-4118-b393-a4564c173fb1', '0498dd5a-7f9a-4291-9728-dcb7239b9923', '0527f9a4-e4b2-423e-a0dd-6f4d3e9d4a9b', '05636f3d-d09f-4a52-9a5b-fd1a11124ac9', '060fc376-8dc1-4b3f-96ae-aeb83405eb20'],
+  aumento_entradas: ['00108ccd-699c-453a-a9f9-a66aad6e03e5', '001221d1-3626-45c1-807a-990502adf808', '00ac49e5-4660-4214-b994-2122c59e1b92', '00cab281-99de-4b37-9c08-62bf796640b1', '01586908-198c-4876-889f-fe165a3863a6', '01adb377-d0c0-479b-a88d-90e3e9a27f8b', '01e3f8e5-126d-4ed5-9fd5-2ada568d5f1d', '021e9ebf-514a-4b64-8212-251602d94073', '023be4d5-c227-4a15-9c95-18aa07428c84', '02d4451e-a29e-477b-a3f8-74ff591aa60d'],
+  dia_salario: ['00108ccd-699c-453a-a9f9-a66aad6e03e5', '001221d1-3626-45c1-807a-990502adf808', '00ac49e5-4660-4214-b994-2122c59e1b92', '00cab281-99de-4b37-9c08-62bf796640b1', '012b40fb-79b9-482a-bbdf-984508ff80cf', '01586908-198c-4876-889f-fe165a3863a6', '0187334b-7c90-44a0-aa33-10025e7f196f', '01adb377-d0c0-479b-a88d-90e3e9a27f8b', '01e3f8e5-126d-4ed5-9fd5-2ada568d5f1d', '02123dba-723a-4b1c-81da-e6ba635672fc'],
+  pressao_financeira: ['00108ccd-699c-453a-a9f9-a66aad6e03e5', '02123dba-723a-4b1c-81da-e6ba635672fc', '02d4451e-a29e-477b-a3f8-74ff591aa60d', '037045c7-cfe3-482d-9576-96200ae44297', '060a4902-2f90-43c2-b658-cdc31c16b27a', '063b4d84-e4b1-4be0-9a01-16a099294430', '07a90b36-345e-4372-830d-c4c82f5f071f'],
+  categoria_fora: ['00108ccd-699c-453a-a9f9-a66aad6e03e5', '012b40fb-79b9-482a-bbdf-984508ff80cf', '0187334b-7c90-44a0-aa33-10025e7f196f', '01e3f8e5-126d-4ed5-9fd5-2ada568d5f1d', '02123dba-723a-4b1c-81da-e6ba635672fc', '0231d306-f210-40a2-8ce3-a86d07384734', '023be4d5-c227-4a15-9c95-18aa07428c84', '02d0abbc-8010-42ed-bbb1-b52eace31ef4', '02d4451e-a29e-477b-a3f8-74ff591aa60d', '0316550e-3d08-4837-8f31-ac73dd26f7e3'],
+};
+const embaralhar = a => a.map(v => [Math.random(), v]).sort((x, y) => x[0] - y[0]).map(x => x[1]);
+const TOM = {positivo: 'positivo', neutro: 'neutro', negativo: 'atenção'};
+
+function renderGatilhos() {
+  const box = document.getElementById('demo2');
+  box.innerHTML = GATILHOS.map(g => {
+    const atual = gatilhosAtuais?.find(x => x.tipo === g.tipo);
+    const st = !gatilhosAtuais ? ['carregando', '…'] : atual?.ativo ? ['ativo', 'ativo neste cliente'] : ['trocar', 'troca de cliente'];
+    return `<button class="dq" data-tipo="${g.tipo}"><span class="dt">${g.emoji} ${esc(g.titulo)}<span class="tom ${g.tom}">${TOM[g.tom]}</span><span class="st ${st[0]}">${st[1]}</span></span>${atual?.ativo ? esc(atual.app.titulo + ': ' + (atual.app.detalhe || atual.app.descricao)) : atual ? esc(atual.motivo_inativo) : ''}</button>`;
+  }).join('');
+  box.querySelectorAll('.dq').forEach(b => b.onclick = () => dispararGatilho(b.dataset.tipo));
+}
+async function carregarGatilhos(id) {
+  gatilhosAtuais = null; renderGatilhos();
+  try {
+    const r = await api(`/clientes/${encodeURIComponent(id)}/gatilhos?nome=${encodeURIComponent(primeiroNome(id))}`);
+    if (id === uid) { gatilhosAtuais = r.gatilhos; gatilhosAtuais.saldo_atual = r.saldo_atual; gatilhosAtuais.data_referencia = r.data_referencia }
+  } catch (e) { gatilhosAtuais = [] }
+  if (id === uid) renderGatilhos();
+}
+async function esperarGatilhos(id) {
+  for (let i = 0; i < 60 && (uid === id) && !gatilhosAtuais; i++) await espera(250);
+  return gatilhosAtuais || [];
+}
+async function dispararGatilho(tipo) {
+  if (!uid || ocupado) return;
+  ocupado = true;
+  try {
+    let lista = await esperarGatilhos(uid), g = lista.find(x => x.tipo === tipo && x.ativo);
+    if (!g) {
+      // sorteia um cliente da lista fixa em que esse gatilho acontece (sem varrer a base na hora)
+      const btn = document.querySelector(`#demo2 [data-tipo="${tipo}"] .st`);
+      if (btn) { btn.className = 'st carregando'; btn.textContent = 'trocando de cliente…' }
+      const opcoesSel = [...document.getElementById('cliente').options].map(o => o.value);
+      let candidatos = embaralhar((CLIENTES_GATILHO[tipo] || []).filter(id => opcoesSel.includes(id) && id !== uid));
+      if (!candidatos.length) {
+        // ambiente sem esses clientes (ex.: CSV local): cai na busca pela API
+        demoGatilhos = demoGatilhos || await api('/demo/gatilhos?limite=50', undefined, 120000);
+        candidatos = (demoGatilhos.por_tipo[tipo] || []).filter(id => opcoesSel.includes(id));
+      }
+      for (const alvo of candidatos.slice(0, 3)) {  // se um sorteado não tiver mais o gatilho, tenta o próximo
+        ocupado = false;
+        await trocarCliente(alvo, {saudacao: false});
+        ocupado = true;
+        lista = await esperarGatilhos(alvo);
+        g = lista.find(x => x.tipo === tipo && x.ativo);
+        if (g) break;
+      }
+      if (!g) { renderGatilhos(); return }
+    }
+    await encenar(g);
+  } catch (e) { log(`<span class="err">gatilho ${esc(tipo)}: ${esc(e.message)}</span>`) }
+  finally { ocupado = false }
+}
+// 1) celular bloqueado  2) chega a notificação do WhatsApp  3) tocando nela, abre a conversa com o ITA
+async function encenar(g) {
+  naoLidas = 0; ultimoAutor = null; sessionId = null; aguardando = null;
+  chat.innerHTML = `<div class="day"><span>Hoje</span></div><div class="notice">🔒 Esta empresa usa um serviço seguro da Meta para gerenciar esta conversa. O ITA nunca pede sua senha por aqui.</div>`;
+  atualizarItem('Toque para conversar com o ITA');
+  esconderPush();
+  const agora = new Date();
+  document.getElementById('lkHora').textContent = hhmm();
+  document.getElementById('lkData').textContent = agora.toLocaleDateString('pt-BR', {weekday: 'long', day: 'numeric', month: 'long'});
+  document.getElementById('lkDica').textContent = 'Celular bloqueado';
+  mostrarTela('bloqueio');
+  await espera(1800);
+  // a mensagem do ITA chega (conta como não lida) e a notificação aparece na tela de bloqueio
+  ita({texto: g.mensagem, botoes: g.botoes.map(b => ({t: b.t, fn: () => responderGatilho(b, g.tipo)}))});
+  const tmp = document.createElement('div'); tmp.innerHTML = fmt(g.mensagem);
+  const texto = tmp.textContent.replace(/^Oi[^!.]*[!.]\s*(👋|🎉)?\s*/u, '').replace(/\s+/g, ' ');
+  document.getElementById('lkNotifs').innerHTML = `<button class="lk-n" onclick="mostrarConversa()" aria-label="Abrir a mensagem do ITA no WhatsApp">
+    <span class="ic-wa"><svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.3-.7-2.8-1.1-4.5-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.9s.7-2 1-2.3c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.3.5-.4.4c-.1.1-.3.3-.1.6.2.3.7 1.2 1.6 2 1.1.9 2 1.2 2.3 1.4.3.1.5.1.6-.1l.8-1c.2-.3.4-.2.6-.1l1.9.9c.3.1.5.2.5.3.1.2.1.7-.1 1.3z"/></svg></span>
+    <span class="tx"><span class="cab"><span>WhatsApp</span><span>agora</span></span><b>ITA | Itaú</b><span class="ms">${esc(texto)}</span></span></button>`;
+  document.getElementById('lkDica').textContent = 'Toque na notificação para abrir';
+}
+function esconderPush() { const n = document.getElementById('lkNotifs'); if (n) n.innerHTML = '' }
+function responderGatilho(b, tipo) {
+  // a resposta vai com o gatilho: o /chat manda direto ao agente PROATIVIDADE, que já sabe do aviso
+  if (b.pergunta) return perguntarAgentes(b.pergunta, undefined, {gatilho: tipo});
+  ita({texto: 'Tudo bem! Fico por aqui. Se quiser conversar sobre isso depois, é só me chamar. 🙂', lista: opcoes()});
+}
+
+// ---------- gráficos como IMAGEM: o backend gera o PNG (app/graficos.py), como o banco mandaria no WhatsApp ----------
+const IMAGENS = [];  // src e título de cada imagem da conversa (o balão guarda só o índice)
+async function enviarGraficos(dados) {
+  let imgs = [];
+  try { imgs = (await api('/graficos', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(dados)})).imagens || [] } catch (e) { }
+  for (const imagem of imgs) ita({imagem});
+  return imgs.length;
+}
+function verImagem(i) {
+  const im = IMAGENS[i];
+  if (!im) return;
+  const v = document.getElementById('visor');
+  document.getElementById('visorTitulo').textContent = im.titulo || 'Gráfico';
+  document.getElementById('visorHora').textContent = im.hora || '';
+  const img = document.getElementById('visorImg');
+  img.src = im.src; img.alt = im.titulo || 'Gráfico';
+  v.hidden = false;
+  document.getElementById('visorFechar').focus();
+}
+function fecharImagem() { document.getElementById('visor').hidden = true }
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !document.getElementById('visor').hidden) fecharImagem() });
+// ---------- simular e contratar o produto ofertado, sem sair do WhatsApp (/produtos/simular e /contratar) ----------
+let ofertaAtual = null, fluxo = null;
+const NOME_CURTO = {financiamento: 'Financiamento', consorcio: 'Consórcio', credito: 'Crédito pessoal'};
+const ROTULO_VALOR = {financiamento: 'Valor do bem', consorcio: 'Valor da carta de crédito', credito: 'Quanto você precisa'};
+const PRAZO_PADRAO = {financiamento: 48, consorcio: 60, credito: 12};
+const PRAZO_LIM = {financiamento: [12, 72], consorcio: [24, 100], credito: [3, 36]};
+// parâmetros iniciais: os do cenário que gerou a oferta; sem cenário, valores proporcionais à renda
+function montarOferta(of, tela) {
+  const cen = (tela.proposta?.cenarios || []).find(c => c.chave === of.cenario);
+  const r = rendaAtual(), p = of.produto;
+  const valor = cen?.valor || (p === 'credito' ? cem(r * 0.3) : p === 'consorcio' ? mil(r * 5) : mil(r * 3));
+  const prazo = cen?.parcelas > 1 ? cen.parcelas : PRAZO_PADRAO[p];
+  return {produto: p, nome: of.nome, valor, entrada: cen?.entrada || 0, prazo: Math.min(Math.max(prazo, PRAZO_LIM[p][0]), PRAZO_LIM[p][1]),
+          taxa: cen?.taxa_juros_mensal || null};
+}
+function botoesOferta() { return [{t: '🧮 Simular', fn: () => abrirFluxo('simular')}, {t: '✍️ Contratar', fn: () => abrirFluxo('contratar')}] }
+function abrirFluxo(modo) {
+  if (!ofertaAtual) return;
+  fluxo = {...ofertaAtual, modo, sim: null};
+  const scrim = document.getElementById('scrim');
+  scrim.innerHTML = `<div class="sheet fluxo" role="dialog" aria-label="${esc(fluxo.nome)}"><div class="fx-head"><button aria-label="Fechar" onclick="fecharFluxo()">✕</button><div class="ft" id="fxTitulo"></div></div><div class="fx-body" id="fxBody"></div><div class="fx-foot" id="fxFoot"></div></div>`;
+  scrim.onclick = null;  // formulário: fecha só pelo ✕
+  scrim.hidden = false;
+  telaForm();
+}
+const fx = (titulo, corpo, rodape) => {
+  document.getElementById('fxTitulo').textContent = titulo;
+  document.getElementById('fxBody').innerHTML = corpo;
+  document.getElementById('fxFoot').innerHTML = rodape + '<div class="fx-seguro">🔒 Formulário do Itaú na conversa · simulação de demonstração</div>';
+};
+const cabecalhoProduto = () => `<div class="fx-prod"><span class="lg">itaú</span><div><b>${esc(fluxo.nome)}</b><small>${fluxo.produto === 'consorcio' ? 'sem juros · taxa de administração' : 'parcelas fixas'}</small></div></div>`;
+function telaForm() {
+  const [lo, hi] = PRAZO_LIM[fluxo.produto];
+  fx(`Simular ${NOME_CURTO[fluxo.produto]}`, `${cabecalhoProduto()}
+    <label for="fxValor">${ROTULO_VALOR[fluxo.produto]}</label><input type="text" id="fxValor" inputmode="decimal" value="${brl(fluxo.valor)}">
+    ${fluxo.produto === 'financiamento' ? `<label for="fxEntrada">Entrada (opcional)</label><input type="text" id="fxEntrada" inputmode="decimal" value="${brl(fluxo.entrada)}">` : ''}
+    <label for="fxPrazo">Prazo</label><input type="range" id="fxPrazo" min="${lo}" max="${hi}" step="1" value="${fluxo.prazo}" oninput="document.getElementById('fxPrazoV').textContent=this.value+' meses'">
+    <div class="fx-prazo"><span>${lo} meses</span><b id="fxPrazoV">${fluxo.prazo} meses</b><span>${hi} meses</span></div>
+    <div class="fx-obs">Os números são calculados com o seu extrato: parcela, custo total e o efeito no seu saldo dos próximos 90 dias.</div>`,
+    `<button class="fx-btn" onclick="simularFluxo()">${fluxo.modo === 'contratar' ? 'Simular e continuar' : 'Simular'}</button>`);
+}
+async function simularFluxo() {
+  const v = lerValor(document.getElementById('fxValor').value), en = document.getElementById('fxEntrada');
+  if (!v) return document.getElementById('fxValor').focus();
+  fluxo.valor = v; fluxo.entrada = en ? (lerValor(en.value) || 0) : 0; fluxo.prazo = +document.getElementById('fxPrazo').value;
+  document.getElementById('fxFoot').innerHTML = '<button class="fx-btn" disabled>Calculando…</button>';
+  try {
+    fluxo.sim = await api(`/clientes/${encodeURIComponent(uid)}/produtos/simular`, {method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({produto: fluxo.produto, valor: fluxo.valor, prazo_meses: fluxo.prazo, entrada: fluxo.entrada, taxa: fluxo.taxa})});
+  } catch (e) { return fx('Algo deu errado', `<div class="fx-msg ruim">Não consegui simular agora (${esc(e.message)}).</div>`, '<button class="fx-btn" onclick="telaForm()">Tentar de novo</button>') }
+  telaResultado();
+}
+function telaResultado() {
+  const s = fluxo.sim, pct = Math.min(100, s.divida_depois_pct);
+  const taxa = s.produto === 'consorcio' ? `${s.taxa_pct.toLocaleString('pt-BR')}% de administração (total)` : `${s.taxa_pct.toLocaleString('pt-BR')}% ao mês${s.taxa_anual_pct ? ` (${s.taxa_anual_pct.toLocaleString('pt-BR')}% ao ano)` : ''}`;
+  fx(`Resultado da simulação`, `${cabecalhoProduto()}
+    <div class="fx-big"><small>${s.prazo_meses} parcelas de</small><b>${brl(s.parcela)}</b><small>primeira em ${dm(s.primeira_parcela)}</small></div>
+    <div class="fx-kv"><span>${ROTULO_VALOR[s.produto]}</span><span>${brl(s.valor)}</span>${s.entrada ? `<span>Entrada</span><span>${brl(s.entrada)}</span>` : ''}
+      <span>Custo total</span><span>${brl(s.custo_total)}</span><span>${s.produto === 'consorcio' ? 'Taxas' : 'Juros'}</span><span>${brl(s.juros_e_taxas)}</span>
+      <span>Taxa${s.taxa_ilustrativa ? ' (ilustrativa)' : ''}</span><span>${taxa}</span></div>
+    <label>Sua renda comprometida com dívidas: ${s.divida_atual_pct.toLocaleString('pt-BR')}% → <b>${s.divida_depois_pct.toLocaleString('pt-BR')}%</b></label>
+    <div class="fx-barra"><i class="${s.divida_depois_pct > 35 ? 'alto' : ''}" style="width:${pct}%"></i><em title="limite saudável: 35%"></em></div>
+    <div class="fx-obs">A marca preta é o limite saudável de 35% da renda.</div>
+    ${s.cabe ? `<div class="fx-msg ok">✅ Cabe no seu orçamento: seu saldo não fica negativo nos próximos 90 dias.</div>`
+             : `<div class="fx-msg ruim">⚠️ ${esc(s.motivo || 'Essa proposta não cabe no seu orçamento agora.')}${s.sugestao ? `<br><br>💡 ${esc(s.sugestao.texto)}.` : ''}</div>`}
+    <div class="fx-obs">${s.observacoes.map(esc).join('<br>')}<br>${esc(s.aviso)}</div>`,
+    s.cabe ? `<button class="fx-btn" onclick="telaRevisao()">Contratar</button><button class="fx-btn sec" onclick="telaForm()">Ajustar valores</button>`
+           : `${s.sugestao ? `<button class="fx-btn" onclick="usarSugestao()">Usar a sugestão</button>` : ''}<button class="fx-btn sec" onclick="telaForm()">Ajustar valores</button>`);
+}
+function usarSugestao() {
+  const sg = fluxo.sim.sugestao;
+  if (sg.prazo) fluxo.prazo = sg.prazo;
+  if (sg.valor) fluxo.valor = sg.valor;
+  telaForm();
+  simularFluxo();
+}
+function telaRevisao() {
+  const s = fluxo.sim;
+  fx('Revise e confirme', `${cabecalhoProduto()}
+    <div class="fx-kv"><span>${ROTULO_VALOR[s.produto]}</span><span>${brl(s.valor)}</span>${s.entrada ? `<span>Entrada</span><span>${brl(s.entrada)}</span>` : ''}
+      <span>Parcelas</span><span>${s.prazo_meses}x ${brl(s.parcela)}</span><span>Primeira parcela</span><span>${dm(s.primeira_parcela)}</span>
+      <span>Custo total</span><span>${brl(s.custo_total)}</span></div>
+    <label class="fx-aceite"><input type="checkbox" id="fxAceite" onchange="document.getElementById('fxConfirmar').disabled=!this.checked">
+      <span>Li as condições e quero enviar a proposta. Sei que a contratação depende de análise de crédito${s.produto === 'consorcio' ? ' e que a carta sai por sorteio ou lance' : ' e que posso desistir em até 7 dias'}.</span></label>
+    <div class="fx-obs">Demonstração: nenhuma contratação real é feita. O ITA nunca pede sua senha por aqui.</div>`,
+    `<button class="fx-btn" id="fxConfirmar" disabled onclick="telaAutenticacao()">Confirmar contratação</button><button class="fx-btn sec" onclick="telaResultado()">Voltar</button>`);
+}
+// ---------- autenticação SIMULADA (só front): biometria ou aprovação no app Itaú, como um banco faria ----------
+// O ITA nunca pede senha, token ou código digitado na conversa: a confirmação acontece no aparelho ou no app.
+let authTimer = null;
+const pararAuth = () => { clearInterval(authTimer); authTimer = null };
+const ICON_DIGITAL = '<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M12 11v3a8 8 0 0 1-1.2 4.2"/><path d="M8.5 9.5A3.5 3.5 0 0 1 15.5 11v1.5a12 12 0 0 1-.6 3.8"/><path d="M6 12a6 6 0 0 1 11.3-2.8"/><path d="M18 12.5c0 1.3-.1 2.6-.4 3.8"/><path d="M4.3 9.2A8 8 0 0 1 12 4a8 8 0 0 1 5 1.7"/><path d="M8.3 16.8A12 12 0 0 0 9 13v-2"/></svg>';
+function telaAutenticacao() {
+  pararAuth();
+  fx('Confirme que é você', `${cabecalhoProduto()}
+    <div class="fx-centro" style="margin-top:16px">Para sua segurança, confirme a contratação com um dos seus métodos cadastrados.<small>O ITA nunca pede senha, token ou código por aqui.</small></div>
+    <div class="fx-auth">
+      <button class="fx-op" onclick="authBiometria()"><span class="oi">${ICON_DIGITAL.replace('44', '24').replace('44', '24')}</span><span><b>Biometria deste celular</b><small>digital ou reconhecimento facial</small></span></button>
+      <button class="fx-op" onclick="authApp()"><span class="oi"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M10.5 18.5h3"/><path d="M9.5 10.5l2 2 3.5-3.5"/></svg></span><span><b>Aprovar no app Itaú</b><small>iToken no aplicativo · dispositivo confiável</small></span></button>
+    </div>
+    <div class="fx-obs">Autenticação simulada para a demonstração.</div>`,
+    '<button class="fx-btn sec" onclick="telaRevisao()">Voltar</button>');
+}
+async function authBiometria() {
+  fx('Biometria', `<div class="fx-bio" id="fxBio">${ICON_DIGITAL}</div>
+    <div class="fx-centro" id="fxBioTxt">Toque no sensor ou olhe para o celular…<small>${esc(fluxo.nome)} · ${fluxo.sim.prazo_meses}x ${brl(fluxo.sim.parcela)}</small></div>`,
+    '<button class="fx-btn sec" onclick="telaAutenticacao()">Usar outro método</button>');
+  await espera(1800);
+  const bio = document.getElementById('fxBio');
+  if (!bio) return;  // o cliente trocou de método
+  bio.classList.add('ok');
+  bio.innerHTML = '<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+  document.getElementById('fxBioTxt').innerHTML = '<b>Identidade confirmada</b><small>Enviando sua proposta…</small>';
+  await espera(900);
+  if (document.getElementById('fxBio')) contratarFluxo();
+}
+function authApp() {
+  let resta = 90;
+  const quando = hhmm();
+  fx('Aprovar no app Itaú', `<div class="fx-centro" style="margin-top:14px">Enviamos uma solicitação para o <b>app Itaú</b> neste celular.<small>Abra o app e toque em <b>Aprovar</b> para concluir.</small></div>
+    <div class="fx-app" role="group" aria-label="Simulação do app Itaú">
+      <div class="ah"><b>itaú</b> Solicitação de aprovação · ${quando}</div>
+      <div class="ab"><b>Contratação pelo WhatsApp</b><br>${esc(fluxo.nome)}: ${fluxo.sim.prazo_meses}x de ${brl(fluxo.sim.parcela)}<small>Custo total ${brl(fluxo.sim.custo_total)} · canal: ITA no WhatsApp</small></div>
+      <div class="aa"><button class="nao" onclick="authRecusada()">Recusar</button><button class="sim" onclick="authAprovada()">Aprovar</button></div>
+    </div>
+    <div class="fx-tempo" id="fxTempo">A solicitação expira em 1:30</div>`,
+    '<button class="fx-btn sec" onclick="telaAutenticacao()">Usar outro método</button>');
+  pararAuth();
+  authTimer = setInterval(() => {
+    const el = document.getElementById('fxTempo');
+    if (!el) return pararAuth();
+    resta--;
+    el.textContent = resta > 0 ? `A solicitação expira em ${Math.floor(resta / 60)}:${String(resta % 60).padStart(2, '0')}` : 'A solicitação expirou.';
+    if (resta <= 0) { pararAuth(); document.querySelectorAll('.fx-app .aa button').forEach(b => b.disabled = true) }
+  }, 1000);
+}
+async function authAprovada() {
+  pararAuth();
+  fx('Aprovar no app Itaú', `<div class="fx-bio ok"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+    <div class="fx-centro"><b>Aprovado no app Itaú</b><small>Enviando sua proposta…</small></div>`, '');
+  await espera(900);
+  contratarFluxo();
+}
+function authRecusada() {
+  pararAuth();
+  fx('Contratação não autorizada', `<div class="fx-msg ruim">Você recusou a solicitação no app Itaú, então nada foi contratado.<br><br>Se não foi você quem pediu, não se preocupe: sem a sua aprovação nenhuma contratação acontece.</div>`,
+    '<button class="fx-btn" onclick="telaRevisao()">Voltar à revisão</button><button class="fx-btn sec" onclick="fecharFluxo()">Fechar</button>');
+}
+async function contratarFluxo() {
+  document.getElementById('fxFoot').innerHTML = '<button class="fx-btn" disabled>Enviando proposta…</button>';
+  let r;
+  try {
+    r = await api(`/clientes/${encodeURIComponent(uid)}/produtos/contratar`, {method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({produto: fluxo.produto, valor: fluxo.valor, prazo_meses: fluxo.prazo, entrada: fluxo.entrada, taxa: fluxo.taxa})});
+  } catch (e) { return fx('Algo deu errado', `<div class="fx-msg ruim">Não consegui enviar a proposta agora (${esc(e.message)}).</div>`, '<button class="fx-btn" onclick="telaRevisao()">Tentar de novo</button>') }
+  if (!r.contratado) { fluxo.sim = r.simulacao; return telaResultado() }
+  fluxo.protocolo = r.protocolo; fluxo.passos = r.proximos_passos;
+  fx('Proposta enviada', `<div class="fx-ok">✓</div><div class="fx-big"><b style="font-size:22px">Proposta enviada!</b><small>Protocolo <b>${esc(r.protocolo)}</b></small></div>
+    <div class="fx-kv"><span>${esc(fluxo.nome)}</span><span>${r.simulacao.prazo_meses}x ${brl(r.simulacao.parcela)}</span><span>Status</span><span>em análise</span></div>
+    <div class="fx-obs">${r.proximos_passos.map(p => '• ' + esc(p)).join('<br>')}</div>`,
+    '<button class="fx-btn" onclick="fecharFluxo()">Voltar à conversa</button>');
+}
+function fecharFluxo() {
+  pararAuth();
+  const f = fluxo; fluxo = null;
+  const scrim = document.getElementById('scrim');
+  scrim.hidden = true; scrim.onclick = e => { if (e.target === scrim) fecharFicha() };
+  if (!f?.sim) return;
+  const s = f.sim;
+  if (f.protocolo) {
+    ita({texto: `✅ *Proposta enviada!*\n\n${f.nome}: *${s.prazo_meses}x de ${brl(s.parcela)}* (custo total ${brl(s.custo_total)}).\nProtocolo *${f.protocolo}*.\n\n${f.passos.map(p => '• ' + p).join('\n')}\n\n_Demonstração: nenhuma contratação real foi feita._`,
+      lista: opcoes()});
+  } else {
+    ita({texto: `📊 *Sua simulação do ${f.nome}*\n\n${s.prazo_meses}x de *${brl(s.parcela)}*, custo total de ${brl(s.custo_total)}.\n${s.cabe ? 'Cabe no seu orçamento.' : s.motivo ? '⚠️ ' + s.motivo + '.' : ''}\n\nQuer ajustar ou seguir com a contratação?`,
+      botoes: botoesOferta()});
+  }
+}
+
+// ---------- Cenário 3: perguntas em que o ITA pode sugerir os produtos (regras de produtos.py) ----------
+// Clientes reais pré-calculados entre os 50 do seletor:
+//  PERFIL_OFERTA: sem dificuldade, sem aperto à vista, com sobra e dívidas até 25% da renda
+//  PERFIL_SOBRA: com sobra recorrente e elegível ao consórcio
+const PERFIL_OFERTA = ['012b40fb-79b9-482a-bbdf-984508ff80cf', '0187334b-7c90-44a0-aa33-10025e7f196f', '0231d306-f210-40a2-8ce3-a86d07384734', '05636f3d-d09f-4a52-9a5b-fd1a11124ac9', '0695c2b6-eb55-4d9f-b79b-ad7338e21f70', '077b8675-2dc9-459c-8c6b-614ac0c48a69', '0783fd44-34a0-41ed-a1a7-74286c52dcbc', '084a8246-d5f5-4f3d-a25c-711e03dfd1ae', '09520bd4-baba-4a2b-9100-7b37c2232c2a', '09b0bd93-14fc-4cce-89da-3f4df27d5aa3'];
+const PERFIL_SOBRA = ['012b40fb-79b9-482a-bbdf-984508ff80cf', '0187334b-7c90-44a0-aa33-10025e7f196f', '01e3f8e5-126d-4ed5-9fd5-2ada568d5f1d', '0231d306-f210-40a2-8ce3-a86d07384734', '023be4d5-c227-4a15-9c95-18aa07428c84', '0498dd5a-7f9a-4291-9728-dcb7239b9923', '0527f9a4-e4b2-423e-a0dd-6f4d3e9d4a9b', '05636f3d-d09f-4a52-9a5b-fd1a11124ac9', '05cae03a-3938-445c-b8be-0fc00cde8f20', '0695c2b6-eb55-4d9f-b79b-ad7338e21f70'];
+const mil = v => Math.max(1000, Math.round(v / 1000) * 1000), cem = v => Math.max(100, Math.round(v / 100) * 100);
+const PERGUNTAS_PRODUTO = [
+  {emoji: '🚗', titulo: 'Carro agora', espera: 'Financiamento Itaú', pool: PERFIL_OFERTA,
+   q: r => `Meu carro quebrou e preciso trocar este mês. Consigo comprar um carro de ${brl(mil(r * 3))}?`},
+  {emoji: '🏠', titulo: 'Carro daqui a 2 anos', espera: 'Consórcio Itaú', pool: PERFIL_OFERTA,
+   q: r => `Quero trocar de carro daqui a uns 2 anos, algo em torno de ${brl(mil(r * 5))}. Qual o melhor caminho?`},
+  {emoji: '💳', titulo: 'Emergência no dentista', espera: 'alternativas → Crédito pessoal Itaú', pool: PERFIL_OFERTA,
+   q: r => `Preciso de ${brl(cem(r * 0.3))} para um tratamento no dentista e não tenho agora. O que eu faço?`},
+  {emoji: '🧾', titulo: 'Empréstimo para as contas', espera: 'reorganizar → Crédito pessoal Itaú', pool: PERFIL_OFERTA,
+   q: r => `Preciso de um empréstimo de ${brl(cem(r * 0.4))} para pagar as contas do mês. O que você recomenda?`},
+  {emoji: '🌱', titulo: 'Sobrou dinheiro', espera: 'reserva → Consórcio Itaú', pool: PERFIL_SOBRA,
+   q: () => 'Sobrou dinheiro este mês. Onde eu invisto?'},
+  {emoji: '📱', titulo: 'Celular em 12x', espera: 'sem oferta (compra do dia a dia)', pool: null,
+   q: r => `Posso parcelar um celular de ${brl(cem(r * 0.4))} em 12x?`},
+];
+function renderProdutos() {
+  const box = document.getElementById('demo3');
+  box.innerHTML = PERGUNTAS_PRODUTO.map((p, i) => `<button class="dq" data-i="${i}"><span class="dt">${p.emoji} ${esc(p.titulo)}</span>Esperado: <b>${esc(p.espera)}</b></button>`).join('');
+  box.querySelectorAll('.dq').forEach(b => b.onclick = () => perguntarProduto(PERGUNTAS_PRODUTO[+b.dataset.i]));
+}
+async function perguntarProduto(p) {
+  if (!uid || ocupado) return;
+  const opcoesSel = [...document.getElementById('cliente').options].map(o => o.value);
+  const pool = (p.pool || []).filter(id => opcoesSel.includes(id));
+  if (pool.length && !pool.includes(uid)) await trocarCliente(embaralhar(pool)[0], {saudacao: false});
+  aguardando = null;
+  mostrarConversa();
+  const txt = p.q(rendaAtual());
+  return perguntarAgentes(txt, eu(txt));
+}
+
+// perguntas prontas da demo: abrem a conversa e enviam direto para os agentes (/chat)
+document.querySelectorAll('#demo1 .dq').forEach(btn => btn.onclick = () => {
+  if (!uid || ocupado) return;
+  aguardando = null;
+  mostrarConversa();
+  document.getElementById('input').value = btn.dataset.q;
+  enviar();
+});
+
+renderGatilhos();
+renderProdutos();
+carregarClientes();
+</script></body></html>

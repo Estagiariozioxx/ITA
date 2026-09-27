@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ITA · Fluxo dos agentes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap">
+<style>
+:root{
+  --bg:#F5F2EC; --surface:#FFFDF9; --sunk:#ECE7DE; --ink:#1C1B19; --ink2:#57534B; --muted:#8A847A; --line:#CFC6B8;
+  --ag:#C2410C; --ag-bg:#FCEADF; --ag-ink:#8A2E08;
+  --ga:#1A5FB4; --ga-bg:#E6EEF9;
+  --rule:#6B5B95; --rule-bg:#ECE8F4;
+  --display:"Sora",ui-sans-serif,system-ui,sans-serif; --body:"DM Sans",ui-sans-serif,system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root{
+  color-scheme:dark; --bg:#171613; --surface:#211F1B; --sunk:#2A2722; --ink:#EDE8DF; --ink2:#BDB6AA; --muted:#8E877C;
+  --line:#4A443B; --ag:#F08A4B; --ag-bg:#3A2519; --ag-ink:#FFC9A6; --ga:#8AB4F8; --ga-bg:#1B2738;
+  --rule:#B7A6E0; --rule-bg:#2A2438;}}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 var(--body);padding-inline:20px;padding-block:18px}
+.wrap{max-width:1600px;height:100%;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+h1{font:700 26px/1.2 var(--display);margin:0;letter-spacing:-.015em}
+p{margin:0}
+
+/* ---------- topo ---------- */
+.top{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px 28px}
+.lede{color:var(--ink2);font-size:14.5px;margin-top:4px;max-width:95ch}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12.5px;color:var(--ink2);align-items:center;margin-left:auto}
+.legend span{display:inline-flex;gap:6px;align-items:center}
+.sw{width:16px;height:11px;border-radius:3px;display:inline-block}
+.btn{font:600 12.5px var(--body);padding:6px 12px;border-radius:9px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.btn:hover{border-color:var(--ink2)}
+.btn:focus-visible{outline:2px solid var(--ag);outline-offset:2px}
+
+/* ---------- palco do diagrama ---------- */
+.palco{flex:1;min-height:0;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:22px 24px;
+  overflow:hidden;display:flex;align-items:center;justify-content:center}
+.dia{position:relative;width:1300px;flex:none;display:grid;grid-template-columns:210px 200px 290px 210px 180px;
+  grid-template-rows:auto 1fr;column-gap:52px;row-gap:18px;transform-origin:center center}
+.fios{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible;z-index:0}
+.fios path{fill:none;stroke:var(--muted);stroke-width:1.6;opacity:.75}
+
+/* etapas: a numeração é a ordem real do processamento */
+.etapa{display:flex;align-items:center;gap:8px;font:600 11.5px var(--body);letter-spacing:.09em;text-transform:uppercase;color:var(--ink2)}
+.etapa i{font:700 12px var(--display);font-style:normal;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;
+  background:var(--ink);color:var(--bg);letter-spacing:0}
+.col{display:flex;flex-direction:column;justify-content:center;gap:22px;position:relative;z-index:1}
+
+/* caixas */
+.n{border:1.5px solid var(--line);background:var(--surface);border-radius:14px;padding:11px 13px}
+.n b{font:600 14.5px/1.25 var(--display);display:block}
+.n small{font-size:12px;color:var(--ink2);display:block;margin-top:2px}
+.n.ag{background:var(--ag-bg);border-color:var(--ag)}
+.n.cd{background:var(--sunk);border-color:var(--muted);border-style:dashed}
+.n.ga{background:var(--ga-bg);border-color:var(--ga)}
+.n.ga b{color:var(--ga)}
+.n.io{background:var(--sunk)}
+.n.grande{padding:16px}
+.n.grande b{font-size:17px}
+.tag{display:inline-block;margin-top:7px;font:500 11px var(--body);padding:2px 8px;border-radius:99px;background:var(--rule-bg);color:var(--rule)}
+.nota{margin-top:8px;padding-top:7px;border-top:1px dashed var(--line);font-size:12px;line-height:1.4;color:var(--ink2)}
+body.sem-notas .nota{display:none}
+
+/* especialistas: cartões do mesmo tamanho */
+.esp{gap:12px}
+.esp .n{display:grid;grid-template-columns:1fr auto;align-items:center;gap:2px 10px;min-height:72px}
+.esp .n .cen{grid-column:1/-1;font:600 10.5px var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--ag-ink)}
+.esp .n b,.esp .n small{grid-column:1}
+.esp .n .tag{margin-top:0;grid-row:2 / span 2;grid-column:2;align-self:center}
+.esp .n.duvida{background:var(--surface);border-style:dashed}
+
+/* ficha técnica de cada agente: temperatura, raciocínio e formato da saída */
+.spec{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
+.esp .n .spec{grid-column:1/-1;margin-top:6px}
+.spec span{font:500 10.5px/1.5 var(--body);padding:1px 7px;border-radius:6px;background:var(--surface);border:1px solid var(--line);color:var(--ink2);white-space:nowrap}
+.n .spec span b{font:600 10.5px var(--body);display:inline;color:var(--ink)}
+.spec span.estr{border-color:var(--ag);color:var(--ag-ink)}
+
+@media (max-width:900px){
+  html,body{height:auto}.wrap{height:auto}.palco{overflow-x:auto;justify-content:flex-start}
+  .legend{margin-left:0}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Como o ITA responde</h1>
+      <p class="lede">Um orquestrador que conversa e três especialistas, um para cada momento do cliente: prever, avisar e decidir.</p>
+    </div>
+    <div class="legend" aria-label="Legenda">
+      <span><i class="sw" style="background:var(--ag-bg);border:1.5px solid var(--ag)"></i> Agente Gemini</span>
+      <span><i class="sw" style="background:var(--sunk);border:1.5px dashed var(--muted)"></i> Código, sem IA</span>
+      <span><i class="sw" style="background:var(--ga-bg);border:1.5px solid var(--ga)"></i> Model Armor (Google Cloud)</span>
+      <span><i class="sw" style="background:var(--rule-bg)"></i> Regras</span>
+      <span><i class="sw" style="background:var(--surface);border:1px solid var(--line);border-radius:4px"></i> Ficha do agente</span>
+      <button class="btn" id="notas" type="button" aria-pressed="true">Esconder notas</button>
+    </div>
+  </header>
+
+  <main class="palco" id="palco">
+    <div class="dia" id="dia" role="img" aria-label="Fluxo em cinco etapas: entrada (cliente, guard de entrada e Model Armor), orquestrador, especialistas (previsibilidade, proatividade, produtos e clarificação), conferência (guardrails de saída e Model Armor) e resposta">
+      <svg class="fios" id="fios" aria-hidden="true">
+        <defs>
+          <marker id="seta" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" style="fill:var(--muted);stroke:none"/></marker>
+        </defs>
+      </svg>
+
+      <div class="etapa"><i>1</i>Entrada</div>
+      <div class="etapa"><i>2</i>Decide</div>
+      <div class="etapa"><i>3</i>Resolve</div>
+      <div class="etapa"><i>4</i>Confere</div>
+      <div class="etapa"><i>5</i>Responde</div>
+
+      <!-- 1 · entrada -->
+      <div class="col">
+        <div class="n io" id="n-cliente"><b>Cliente</b><small>no WhatsApp</small>
+          <p class="nota">Pergunta, toca num botão ou responde a um aviso do ITA.</p></div>
+        <div class="n cd" id="n-guard"><b>Guard de entrada</b><small>regras fixas · ~0 s</small>
+          <p class="nota">Bloqueia injeção de prompt, CPF/senha, pedido ilícito e fora do escopo.</p></div>
+        <div class="n ga" id="n-ma-in"><b>Model Armor</b><small>checa a pergunta</small>
+          <p class="nota">Detecta injeção disfarçada, jailbreak, dado sensível e link malicioso.</p></div>
+      </div>
+
+      <!-- 2 · decide -->
+      <div class="col">
+        <div class="n ag grande" id="n-orq"><b>Orquestrador</b><small>entende o que o cliente precisa</small>
+          <div class="spec"><span>temp <b>0,2</b></span><span>thinking <b>LOW</b></span><span>saída <b>texto</b> ou transferência</span></div>
+          <p class="nota">Responde saudações. Na dúvida, pergunta. Botão ou aviso vão direto ao especialista.</p></div>
+      </div>
+
+      <!-- 3 · resolve -->
+      <div class="col esp">
+        <div class="n ag" id="n-prev"><span class="cen">Cenário 1</span><b>Previsibilidade</b><small>o dinheiro antes de acontecer</small>
+          <div class="spec"><span>temp <b>0,4</b></span><span>thinking <b>LOW</b></span><span>saída <b>texto livre</b></span></div></div>
+        <div class="n ag" id="n-proa"><span class="cen">Cenário 2</span><b>Proatividade</b><small>continua o aviso que o ITA mandou</small>
+          <div class="spec"><span>temp <b>0,4</b></span><span>thinking <b>LOW</b></span><span>saída <b>texto livre</b></span></div></div>
+        <div class="n ag" id="n-prod"><span class="cen">Cenário 3</span><b>Produtos</b><small>ajuda a decidir compra e crédito</small>
+          <div class="spec"><span>temp <b>0,4</b></span><span>thinking <b>LOW</b></span><span>saída <b>texto livre</b></span></div>
+          <span class="tag">regras → oferta</span></div>
+        <div class="n ag duvida" id="n-clar"><span class="cen">Na dúvida</span><b>Clarificação</b><small>pergunta em vez de adivinhar</small>
+          <div class="spec"><span>temp <b>0,3</b></span><span>thinking <b>LOW</b></span><span class="estr">saída <b>estruturada</b> (JSON)</span></div>
+          <span class="tag">botões</span></div>
+      </div>
+
+      <!-- 4 · confere -->
+      <div class="col">
+        <div class="n cd" id="n-guardrails"><b>Guardrails de saída</b><small>código · ~0 s</small>
+          <p class="nota">Tira produto sem oferta, troca promessas, garante o aviso de crédito e audita números.</p></div>
+        <div class="n ga" id="n-ma-out"><b>Model Armor</b><small>checa a resposta</small>
+          <p class="nota">Última checagem: dado sensível, conteúdo nocivo e link malicioso.</p></div>
+      </div>
+
+      <!-- 5 · responde -->
+      <div class="col">
+        <div class="n io" id="n-resposta"><b>Resposta</b><small>no WhatsApp</small>
+          <p class="nota">Texto, botões (oferta ou clarificação) e a trilha do que cada agente fez.</p></div>
+      </div>
+    </div>
+  </main>
+
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+
+// setas desenhadas a partir da posição real das caixas
+const FIOS = [
+  ["n-cliente", "n-guard", "v"], ["n-guard", "n-ma-in", "v"], ["n-ma-in", "n-orq"],
+  ["n-orq", "n-prev"], ["n-orq", "n-proa"], ["n-orq", "n-prod"], ["n-orq", "n-clar"],
+  ["n-prev", "n-guardrails"], ["n-proa", "n-guardrails"], ["n-prod", "n-guardrails"], ["n-clar", "n-guardrails"],
+  ["n-guardrails", "n-ma-out", "v"], ["n-ma-out", "n-resposta"],
+];
+
+function desenhar() {
+  const dia = $("dia"), svg = $("fios");
+  svg.querySelectorAll("path.fio").forEach(p => p.remove());
+  const pos = el => {  // posição dentro do diagrama, sem a escala
+    let l = 0, t = 0, e = el;
+    while (e && e !== dia) { l += e.offsetLeft; t += e.offsetTop; e = e.offsetParent; }
+    return {l, t, r: l + el.offsetWidth, b: t + el.offsetHeight, cx: l + el.offsetWidth / 2, cy: t + el.offsetHeight / 2};
+  };
+  for (const [de, para, modo] of FIOS) {
+    const a = pos($(de)), z = pos($(para));
+    let d;
+    if (modo === "v") d = `M${a.cx},${a.b} L${z.cx},${z.t - 2}`;
+    else {
+      const x1 = a.r, y1 = a.cy, x2 = z.l - 3, y2 = z.cy, dx = Math.max(20, (x2 - x1) / 2);
+      d = `M${x1},${y1} C${x1 + dx},${y1} ${x2 - dx},${y2} ${x2},${y2}`;
+    }
+    const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    p.setAttribute("d", d);
+    p.setAttribute("class", "fio");
+    p.setAttribute("marker-end", "url(#seta)");
+    svg.appendChild(p);
+  }
+}
+
+// o diagrama escala para caber no palco (largura e altura), bom para projetar
+function ajustar() {
+  const dia = $("dia"), palco = $("palco");
+  dia.style.transform = "none";
+  desenhar();
+  if (matchMedia("(max-width:900px)").matches) return;
+  const cs = getComputedStyle(palco);
+  const w = palco.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+  const h = palco.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+  const s = Math.min(1.25, w / dia.offsetWidth, h / dia.offsetHeight);
+  dia.style.transform = `scale(${s})`;
+}
+addEventListener("resize", ajustar);
+document.fonts?.ready.then(ajustar);
+
+// notas de apresentação: mostrar/esconder (lembra a escolha neste navegador)
+function notas(mostrar) {
+  document.body.classList.toggle("sem-notas", !mostrar);
+  $("notas").textContent = mostrar ? "Esconder notas" : "Mostrar notas";
+  $("notas").setAttribute("aria-pressed", String(mostrar));
+  try { localStorage.setItem("ita-notas", mostrar ? "1" : "0"); } catch (e) {}
+  ajustar();
+}
+let comNotas = true;
+try { comNotas = localStorage.getItem("ita-notas") !== "0"; } catch (e) {}
+$("notas").onclick = () => notas(document.body.classList.contains("sem-notas"));
+notas(comNotas);
+</script>
+</body>
+</html>

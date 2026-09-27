@@ -7,3 +7,4 @@ venv/
 data/
 CLAUDE.md
 *.sh
+deploy.ps1

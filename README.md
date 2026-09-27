@@ -7,9 +7,12 @@ FastAPI + Google ADK (Gemini 3.8 Flash) + BigQuery, publicado no Cloud Run.
 app/
   config.py    variáveis de ambiente
   data.py      lê o extrato do cliente no BigQuery (ou CSV local)
-  engine.py    motor determinístico: perfil, projeção, comparação, alertas  <- todos os números
-  tools.py     ferramentas que os agentes chamam
-  agents.py    ENTENDER -> ANTECIPAR -> ORIENTAR -> GUARDIÃO (SequentialAgent)
+  engine.py    motor determinístico das telas: perfil, projeção, comparação, alertas
+  produtos.py  regras de produto: quais produtos podem aparecer e se há oferta
+  agents.py    ORQUESTRADOR -> CLARIFICAÇÃO | PREVISIBILIDADE | PROATIVIDADE | PRODUTOS
+  tools.py     tools dos agentes (perfil, projeção, simulações, busca de gastos, regras de produto)
+  guardrails_saida.py  conferência da resposta em código antes de sair
+  simulacao.py contas por trás das tools
   main.py      API
 adk_agents/    entrada para `adk web` (Agent Platform / Antigravity / VS Code)
 scripts/       gerador de dados sintéticos para teste local
@@ -19,9 +22,11 @@ deploy.sh      deploy no Cloud Run (Artifact Registry + Cloud Build + Cloud Run)
 
 ## Princípio
 
-O LLM **nunca calcula**. Todo valor, data e percentual sai do `engine.py`;
-o Gemini só interpreta, recomenda e explica. O Guardião revisa cada resposta
-contra os princípios da Res. Conjunta nº 8 antes de ela chegar ao cliente.
+O chat é feito de agentes Gemini que decidem, recomendam e escrevem; os números
+vêm de tools que buscam o extrato no BigQuery e calculam em código (`tools.py`,
+`simulacao.py`, `engine.py`). Quais produtos podem
+aparecer e se há oferta é decidido pelas regras de `produtos.py`, não pelo LLM. As regras da Res. Conjunta nº 8 estão no prompt de cada agente e os guardrails
+de saída conferem cada resposta em código antes de ela chegar ao cliente.
 
 ## 1. Antes de tudo (BigQuery Studio)
 

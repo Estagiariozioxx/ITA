@@ -32,7 +32,7 @@ services:
     environment:
       DATA_SOURCE: bigquery
       GOOGLE_CLOUD_PROJECT: batalha-time-01-97zr
-      GOOGLE_CLOUD_LOCATION: us-central1
+      GOOGLE_CLOUD_LOCATION: global  # gemini-3.8-flash só existe no endpoint global do Vertex
       # Gemini via Vertex AI com o seu login (créditos do projeto), não pela chave do .env
       GOOGLE_GENAI_USE_VERTEXAI: "TRUE"
       GOOGLE_API_KEY: ""
