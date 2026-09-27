@@ -32,3 +32,12 @@ THINKING_LEVEL = os.getenv("THINKING_LEVEL", "LOW").strip().upper() or None
 
 # Cache do extrato por cliente (segundos) para não repetir query no BigQuery
 CACHE_TTL = int(os.getenv("CACHE_TTL", "600"))
+
+# Entrada por áudio e imagem no /chat (app/midia.py)
+# Quem transcreve o áudio do cliente: "gemini" (sem setup, gasta 1 chamada da cota do Gemini)
+# ou "speech" (Google Cloud Speech-to-Text/Chirp: não gasta cota do Gemini, mas exige a API
+# speech.googleapis.com habilitada e o pacote google-cloud-speech).
+TRANSCRICAO = os.getenv("TRANSCRICAO", "gemini").strip().lower()
+IDIOMA_AUDIO = os.getenv("IDIOMA_AUDIO", "pt-BR")
+# Limite do arquivo que o cliente envia (o WhatsApp já comprime; serve contra abuso)
+LIMITE_MIDIA_MB = float(os.getenv("LIMITE_MIDIA_MB", "8"))

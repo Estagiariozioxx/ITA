@@ -5,20 +5,39 @@ FastAPI + Google ADK (Gemini 3.8 Flash) + BigQuery, publicado no Cloud Run.
 
 ```
 app/
-  config.py    variáveis de ambiente
-  data.py      lê o extrato do cliente no BigQuery (ou CSV local)
-  engine.py    motor determinístico das telas: perfil, projeção, comparação, alertas
-  produtos.py  regras de produto: quais produtos podem aparecer e se há oferta
-  agents.py    ORQUESTRADOR -> CLARIFICAÇÃO | PREVISIBILIDADE | PROATIVIDADE | PRODUTOS
-  tools.py     tools dos agentes (perfil, projeção, simulações, busca de gastos, regras de produto)
-  guardrails_saida.py  conferência da resposta em código antes de sair
-  simulacao.py contas por trás das tools
-  main.py      API
-adk_agents/    entrada para `adk web` (Agent Platform / Antigravity / VS Code)
-scripts/       gerador de dados sintéticos para teste local
-sql/           consultas de diagnóstico da base
-deploy.sh      deploy no Cloud Run (Artifact Registry + Cloud Build + Cloud Run)
+  main.py          cria o FastAPI e registra as rotas
+  config.py        variáveis de ambiente
+  schemas.py       modelos de entrada (ChatIn, SimulacaoIn, ComparacaoIn, ProdutoIn)
+  routes/          contrato HTTP: caminhos, parâmetros e validação (só chamam os controllers)
+    web.py  clientes.py  produtos.py  chat.py  graficos.py  demo.py
+  controllers/     casos de uso: juntam repositório, services e agentes; erro vira resposta HTTP
+    comum.py       extrato do cliente ou 404
+    clientes.py  produtos.py  graficos.py  demo.py
+    chat.py        /chat: mídia -> guard de entrada -> agentes -> gráfico escolhido -> trilha
+  services/        regras de negócio, sem HTTP e sem LLM
+    engine.py      motor determinístico: perfil, projeção, comparação, alertas
+    simulacao.py   contas por trás das tools dos agentes
+    produtos.py    regras de produto: quais produtos podem aparecer e se há oferta
+    contratacao.py simular e contratar (demonstração) na conversa
+    gatilhos.py    gatilhos proativos detectados no extrato
+    graficos.py    gráficos como imagem (PNG)
+    midia.py       áudio e imagem (transcrição e guard de imagem)
+    guard_entrada.py / guardrails_saida.py   conferências em código antes e depois dos agentes
+    formatos.py    R$ e datas no padrão brasileiro
+  agents/          Google ADK + Gemini
+    agentes.py     ORQUESTRADOR -> CLARIFICAÇÃO | PREVISIBILIDADE | PROATIVIDADE | PRODUTOS
+    tools.py       tools dos agentes (perfil, projeção, simulações, busca de gastos, regras de produto)
+    runner.py      Runner do ADK e sessões
+  repositories/
+    extratos.py    extrato do cliente no BigQuery (ou CSV local)
+adk_agents/        entrada para `adk web` (Agent Platform / Antigravity / VS Code)
+scripts/           gerador de dados sintéticos para teste local
+deploy.sh          deploy no Cloud Run (Artifact Registry + Cloud Build + Cloud Run)
 ```
+
+Regra das camadas: `routes -> controllers -> services / agents -> repositories`. Uma camada só chama a
+de baixo. Os services não conhecem FastAPI; o único que chama o Gemini é o `midia.py` (transcrição do
+áudio e leitura da foto), porque é conversão de mídia, não conversa com o cliente.
 
 ## Princípio
 

@@ -17,15 +17,13 @@ import re
 
 import pandas as pd
 
-from .engine import _data_no_mes, _py, brl
+from .engine import _data_no_mes, _py
+from .formatos import brl, dia_mes
 
 JANELA = 30          # dias do "mês atual" (terminando na data de referência do extrato)
 BASE = 90            # dias de comparação antes da janela
 
 
-def _dm(d) -> str:
-    d = dt.date.fromisoformat(d) if isinstance(d, str) else d
-    return d.strftime("%d/%m")
 
 
 def _janelas(d: pd.DataFrame):
@@ -79,15 +77,15 @@ def fim_parcela(d, pf, nome) -> dict:
     if terminadas:
         t = terminadas[0]
         valor, descr, quando = float(t.vlr_r), t.descr, "terminou este mês"
-        detalhe = f"Parcela {int(t.parcela_total)}/{int(t.parcela_total)} paga em {_dm(t.ultima.date())}"
+        detalhe = f"Parcela {int(t.parcela_total)}/{int(t.parcela_total)} paga em {dia_mes(t.ultima.date())}"
     else:
         prox = [x for x in pf["parcelas_abertas"]
                 if dt.date.fromisoformat(x["termina_em"]) <= fim.date() + dt.timedelta(days=45)]
         if not prox:
             return _inativo("fim_parcela", "nenhuma parcela terminou nem termina nos próximos 45 dias")
         x = max(prox, key=lambda x: x["valor_parcela"])
-        valor, descr, quando = x["valor_parcela"], x["descricao"], f"termina em {_dm(x['termina_em'])}"
-        detalhe = f"Faltam {x['restantes']} parcela(s) · última em {_dm(x['termina_em'])}"
+        valor, descr, quando = x["valor_parcela"], x["descricao"], f"termina em {dia_mes(x['termina_em'])}"
+        detalhe = f"Faltam {x['restantes']} parcela(s) · última em {dia_mes(x['termina_em'])}"
     descr = nome_lancamento(descr)
     return {
         "tipo": "fim_parcela", "ativo": True, "tom": "positivo", "emoji": "💰", "titulo": "Fim de parcela",
@@ -126,7 +124,7 @@ def pressao_financeira(d, pf, nome) -> dict:
                                                 "O que está pressionando meu orçamento?"},
             {"t": "Agora não", "pergunta": None},
         ],
-        "app": {"titulo": "Saldo negativo", "descricao": f"Menor saldo em {_dm(pior['dt'].date())}",
+        "app": {"titulo": "Saldo negativo", "descricao": f"Menor saldo em {dia_mes(pior['dt'].date())}",
                 "valor": round(float(pior["saldo_apos"]), 2),
                 "detalhe": f"Gastos dos últimos 30 dias: {brl(gasto)} ({aumento:+.0f}% vs média)", "tom": "negativo"},
         "dados": {"gasto_30d": round(gasto, 2), "media_mensal": round(media, 2), "dias_no_negativo_30d": dias_neg},
@@ -155,8 +153,8 @@ def aumento_entradas(d, pf, nome) -> dict:
         "botoes": [
             {"t": "Sim, é recorrente", "pergunta": f"Sim, minhas entradas subiram para cerca de {brl(media_rec)} por mês "
                                                    f"e isso agora é recorrente. O que muda para mim?"},
-            {"t": "Não, foi pontual", "pergunta": f"Não, o aumento nas minhas entradas foi pontual. "
-                                                  f"Como devo usar esse dinheiro extra?"},
+            {"t": "Não, foi pontual", "pergunta": "Não, o aumento nas minhas entradas foi pontual. "
+                                                  "Como devo usar esse dinheiro extra?"},
         ],
         "app": {"titulo": "Crédito recebido", "descricao": nome_lancamento(maior["descr"]),
                 "valor": round(float(maior["vlr"]), 2),
@@ -214,18 +212,18 @@ def dia_salario(d, pf, nome) -> dict:
         separar = _separar_por_mes(pf)
         convite = (f"Que tal já separar *{brl(separar)}* para a sua reserva no dia do pagamento, "
                    f"antes de começar a gastar?")
-        pergunta = f"Meu salário cai em {_dm(data)}. Como separo {brl(separar)} para a reserva e organizo o mês?"
+        pergunta = f"Meu salário cai em {dia_mes(data)}. Como separo {brl(separar)} para a reserva e organizo o mês?"
     else:
         convite = "Quer que eu monte um plano para as contas do mês antes de você começar a gastar?"
-        pergunta = f"Meu salário cai em {_dm(data)}. Como devo organizar as contas deste mês?"
+        pergunta = f"Meu salário cai em {dia_mes(data)}. Como devo organizar as contas deste mês?"
     return {
         "tipo": "dia_salario", "ativo": True, "tom": "neutro", "emoji": "🗓️", "titulo": "Dia do salário",
         "regra": "R007",
         "mensagem": (f"Oi, {nome}! 👋\n\nSeu *{nome_lancamento(sal['descricao']).lower()}* de *{brl(sal['valor'])}* "
-                     f"deve cair em *{_dm(data)}*.\n\n{convite}"),
+                     f"deve cair em *{dia_mes(data)}*.\n\n{convite}"),
         "botoes": [{"t": "Quero sim", "pergunta": pergunta}, {"t": "Agora não", "pergunta": None}],
         "app": {"titulo": "Crédito previsto", "descricao": nome_lancamento(sal["descricao"]), "valor": sal["valor"],
-                "detalhe": f"Previsto para {_dm(data)}", "tom": "positivo"},
+                "detalhe": f"Previsto para {dia_mes(data)}", "tom": "positivo"},
         "dados": {"data": data.isoformat(), "valor": sal["valor"]},
     }
 

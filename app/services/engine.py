@@ -19,15 +19,13 @@ from collections import defaultdict
 import numpy as np
 import pandas as pd
 
-from . import config
+from .. import config
+from .formatos import brl  # noqa: F401  (usado aqui e reexportado)
 
 
 # --------------------------------------------------------------------------- #
 # utilidades
 # --------------------------------------------------------------------------- #
-def brl(v: float) -> str:
-    s = f"{abs(v):,.0f}".replace(",", ".")
-    return f"-R$ {s}" if v < 0 else f"R$ {s}"
 
 
 def _data_no_mes(ano: int, mes: int, dia: int) -> dt.date:
@@ -500,12 +498,6 @@ def comparar_opcoes(
     )
 
 
-def resumo_comparacao(c: dict) -> dict:
-    return {
-        **{k: v for k, v in c.items() if k not in ("opcoes", "sem_compra")},
-        "sem_compra": {k: v for k, v in c["sem_compra"].items() if k != "serie"},
-        "opcoes": [{k: v for k, v in o.items() if k != "serie"} for o in c["opcoes"]],
-    }
 
 
 # --------------------------------------------------------------------------- #

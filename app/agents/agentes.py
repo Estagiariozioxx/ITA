@@ -27,7 +27,8 @@ from google.adk.models import Gemini, LlmResponse
 from google.genai import types
 from pydantic import BaseModel, Field
 
-from . import config, guardrails_saida
+from .. import config
+from ..services import graficos, guardrails_saida
 from .tools import (
     ate_salario,
     avaliar_produtos,
@@ -51,6 +52,14 @@ resposta conferindo cada uma:
   Taxa que o cliente não informou é sempre "hipotética".
 - Sem promessa de rentabilidade e sem "garantido", "sem risco" ou "aprovado".
 - Linguagem simples, para quem tem pouco letramento financeiro."""
+HOJE = """Data de hoje: {data_hoje?} (horário de Brasília). Use SEMPRE esta data quando o cliente perguntar que
+dia é hoje ou falar de "hoje", "este mês", "semana que vem". A situação do cliente vem do histórico do banco, que vai
+até a data_referencia; o ano desses dados não é o ano atual."""
+FOTO = """Foto que o cliente mandou, já lida e liberada pelo guard de imagem (vazio se ele não mandou
+nenhuma): {imagem?}
+Se houver foto, use o valor, as parcelas e o vencimento dela como o que o CLIENTE informou, e siga com as
+tools normalmente. Se a foto for de extrato ou fatura, os números que valem são os da situação acima, que
+vêm do banco; a foto serve só para entender do que ele está falando."""
 REGRA_PRODUTO = (
     "Produtos: só cite um produto do Itaú (Financiamento Itaú, Consórcio Itaú ou Crédito pessoal Itaú) se ele "
     "estiver em \"oferta\". Fora isso, fale de tipos de solução (poupar, esperar, reserva de baixo risco com "
@@ -98,8 +107,9 @@ COMO_RESPONDER = """Como responder (a forma é sua; o obrigatório está em "Nã
   100 palavras ou mais, no máximo 2. Não use sempre os mesmos títulos nem a mesma sequência de seções.
 - Abertura: comece pelo que mais importa para ele agora (a resposta sim/não, o número principal, a boa notícia
   ou o alerta), com palavras suas; nunca com uma fórmula fixa.
-- Séries de valores (mês a mês, dia a dia, por categoria, por cenário) aparecem num gráfico na conversa,
-  automaticamente: não liste a série. Cite só o ponto que importa (o pior mês, a maior categoria, o melhor caminho).
+- Não liste séries de valores (mês a mês, dia a dia, por categoria, por cenário) no texto: cite só o ponto que
+  importa (o pior mês, a maior categoria, o melhor caminho). Se a série inteira ajudar, mande um gráfico
+  (veja "Gráfico").
 - Tom conforme a situação:
   • aperto ou saldo negativo: acolhedor e direto, frases curtas, no máximo 1 emoji, sem aula; foco no que ele
     pode fazer já;
@@ -129,13 +139,43 @@ de começar já no próximo salário?"
 
 Eu iria de *B*: são só 2 meses de espera e você não paga juros de cheque especial. Qual faz mais sentido para você?\""""
 
-_ESCRITA = f"""{REGRAS_RES8}
+# O especialista decide SE a resposta leva gráfico e QUAL; o código (graficos.py) valida e desenha com os
+# dados das tools. A escolha vai numa linha de controle no fim da resposta, que o cliente nunca vê.
+GRAFICO = """Gráfico (opcional): você pode mandar UM gráfico, como imagem, feito com os dados das tools que você
+chamou nesta resposta. Use só quando ele mostrar melhor o ponto principal do que as palavras: uma evolução no
+tempo, uma comparação entre várias coisas ou a divisão de um total. NÃO use em pergunta pontual (a resposta cabe
+numa frase), conceito, saudação, pergunta de volta ao cliente, ou quando o gráfico só repetiria o número do texto.
+Na dúvida, não use: a maioria das respostas não precisa de gráfico.
+
+Se usar, a ÚLTIMA linha da resposta deve ser só isto, em JSON (o cliente não vê essa linha):
+GRAFICO: {"tipo": "<tipo>", "destaque": "<opcional>", "titulo": "<a mensagem do gráfico>"}
+
+Tipos (só vale se a tool entre parênteses foi chamada nesta resposta):
+- saldo_meses (projetar_saldo): pior saldo de cada mês. destaque = "AAAA-MM" do mês que importa.
+- saldo_dias (projetar_saldo): saldo dia a dia com as contas que derrubam o saldo marcadas.
+- saldo_ate_salario (ate_salario): saldo até o próximo salário, com e sem o gasto.
+- categorias (comparar_gastos): gastos por categoria vs a média. destaque = nome exato da categoria.
+- divisao_gastos (comparar_gastos): para onde vai o dinheiro (partes de um total).
+- maiores_gastos (buscar_lancamentos): os lançamentos que mais pesaram. destaque = descrição exata.
+- caminhos (simular_cenarios): saldo mês a mês de cada caminho. destaque = letra do caminho.
+- custo_caminhos (simular_cenarios): custo total e juros de cada caminho. destaque = letra do caminho.
+- dinheiro_extra (simular_dinheiro_extra): quanto do dinheiro extra quita parcelas e quanto fica guardado.
+Escolha o tipo que conta a história da SUA resposta (ex.: se o ponto é "o delivery dobrou", categorias com
+destaque "Delivery"; se é "março é o pior mês", saldo_meses com destaque no mês).
+titulo: a mensagem do gráfico em até 7 palavras, com palavras suas (ex.: "Março é o mês mais apertado"). Número
+no título só se ele estiver no seu texto."""
+
+_ESCRITA = f"""{HOJE}
+
+{REGRAS_RES8}
 
 {COMO_RESPONDER}
 
 {FORMATO_WHATSAPP}
 
-{EXEMPLOS}"""
+{EXEMPLOS}
+
+{GRAFICO}"""
 _IDEIAS = """ações que o próprio cliente pode tomar (rever assinaturas, cortar parte do gasto variável, pedir para
 mudar o vencimento de uma conta grande para depois do salário, direcionar parcelas que terminam, separar um
 valor no dia do salário), com o efeito calculado a partir dos números dele"""
@@ -159,6 +199,9 @@ def _fim_do_turno(callback_context):
     da rota (para o orquestrador não clarificar duas vezes seguidas)."""
     st = callback_context.state
     if st.get("resposta"):
+        # a linha "GRAFICO: {...}" é a escolha do gráfico: sai do texto antes de tudo
+        texto, escolha = graficos.extrair_escolha(st["resposta"])
+        st["resposta"], st["grafico_escolhido"] = texto, escolha
         texto, acoes = guardrails_saida.aplicar(st["resposta"], st.to_dict())
         st["resposta"] = texto
         st["guardrails"] = acoes
@@ -189,6 +232,7 @@ previsibilidade = _especialista(
 Você ajuda o cliente a enxergar o próprio dinheiro antes de acontecer.
 
 Situação do cliente (já calculada a partir do extrato): {{contexto_cliente?}}
+{FOTO}
 
 Tools. Use só a que a pergunta pede; se a situação acima já responde, não use nenhuma.
 - ate_salario(gasto): "quanto posso gastar até o salário?", "dá para gastar R$ 500 hoje?".
@@ -226,6 +270,7 @@ perguntar, e agora o cliente respondeu. Continue a partir desse aviso.
 
 Aviso que abriu a conversa (gatilho, com os números): {{gatilho?}}
 Situação do cliente (já calculada): {{contexto_cliente?}}
+{FOTO}
 
 Tools. Use só a que o assunto pede:
 - fim de parcela, mês no azul, aumento de entradas: simular_dinheiro_extra ou projetar_saldo para mostrar o
@@ -258,6 +303,7 @@ produtos_agente = _especialista(
 recomenda um e dá ideias, mas a decisão é dele. Produto do banco só entra se as regras liberarem.
 
 Situação do cliente (já calculada): {{contexto_cliente?}}
+{FOTO}
 Cenários apresentados antes nesta conversa: {{proposta?}}
 Simulação anterior: {{simulacao?}}
 oferta (decidida pelas regras, depois da tool): {{oferta?}}
@@ -377,6 +423,8 @@ B. Transfira com transfer_to_agent para:
      escolha previsibilidade.
 Falta de detalhe dentro de um assunto claro (ex.: "quero comprar um carro" sem valor) não é dúvida de rota:
 transfira para o especialista, que pergunta o que falta.
+
+{HOJE}
 
 {REGRAS_RES8}""",
     sub_agents=[previsibilidade, proatividade, produtos_agente, clarificacao],

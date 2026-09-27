@@ -12,8 +12,8 @@ from __future__ import annotations
 
 from google.adk.tools.tool_context import ToolContext
 
-from . import engine, produtos, simulacao
-from .data import get_repo
+from ..services import engine, produtos, simulacao
+from ..repositories.extratos import get_repo
 
 NECESSIDADES = {"aquisicao", "liquidez", "dificuldade", "sobra", "objetivo", "diagnostico"}
 
@@ -29,10 +29,32 @@ def _extrato(ctx):
 # --------------------------------------------------------------------------- #
 # pré-carregamento (não é tool)
 # --------------------------------------------------------------------------- #
+_DIAS = ("segunda-feira", "terça-feira", "quarta-feira", "quinta-feira", "sexta-feira", "sábado", "domingo")
+_MESES = ("janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro",
+          "outubro", "novembro", "dezembro")
+
+
+def hoje_extenso() -> str:
+    """Data de hoje no horário de Brasília, por extenso: "sábado, 27 de setembro de 2026".
+
+    Vai para state["data_hoje"] a cada mensagem: sem ela o modelo deduz o ano pelo extrato,
+    que é de 2025 (base sintética), e responde "que dia é hoje?" com a data errada.
+    """
+    import datetime as dt
+
+    try:
+        from zoneinfo import ZoneInfo
+        agora = dt.datetime.now(ZoneInfo("America/Sao_Paulo"))
+    except Exception:  # imagem sem tzdata: Brasília é UTC-3 o ano todo desde 2019
+        agora = dt.datetime.now(dt.timezone(dt.timedelta(hours=-3)))
+    return f"{_DIAS[agora.weekday()]}, {agora.day} de {_MESES[agora.month - 1]} de {agora.year}"
+
+
 def carregar_perfil(callback_context):
     """Antes de cada especialista: raio-X do cliente em state["contexto_cliente"] e a rota do turno."""
     st = callback_context.state
     st["rota_atual"] = callback_context.agent_name
+    st["data_hoje"] = hoje_extenso()  # também cobre o adk web, que não passa pelo /chat
     d, pf = _extrato(callback_context)
     st["contexto_cliente"] = simulacao.contexto(pf, engine.alertas(d))
     return None

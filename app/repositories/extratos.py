@@ -6,7 +6,7 @@ from functools import lru_cache
 
 import pandas as pd
 
-from . import config
+from .. import config
 
 COLUNAS = [
     "id_usuario", "anomesdia", "anomes", "tipo", "descr", "vlr",

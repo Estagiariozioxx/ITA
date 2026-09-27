@@ -13,7 +13,8 @@ import time
 
 import pandas as pd
 
-from . import config, engine, produtos
+from .. import config
+from . import engine, produtos
 from .engine import _data_no_mes, _py, brl, valor_parcela
 
 PRAZOS = {  # meses permitidos por produto

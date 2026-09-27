@@ -11,7 +11,8 @@ import math
 
 import pandas as pd
 
-from . import config, engine
+from .. import config
+from . import engine
 from .engine import _data_no_mes, _py, _somar_meses, valor_parcela
 
 MAX_DIAS = 31 * 60  # horizonte máximo das simulações: 5 anos
@@ -68,7 +69,8 @@ def contexto(pf: dict, alertas: list[dict]) -> dict:
 # --------------------------------------------------------------------------- #
 def projecao(d: pd.DataFrame, pf: dict, dias: int) -> dict:
     pj = engine.projetar(d, max(7, min(int(dias), 365)), pf=pf)
-    return _py({**engine.resumo_projecao(pj), "projecao_mensal": _serie_mensal(pj)})
+    # a série diária (com os eventos de cada dia) fica no estado para o gráfico; a tool não a manda ao LLM
+    return _py({**engine.resumo_projecao(pj), "projecao_mensal": _serie_mensal(pj), "serie": pj["serie"]})
 
 
 # --------------------------------------------------------------------------- #
